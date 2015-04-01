@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -8,15 +9,22 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     procs=NULL;
     plots=NULL;
+    curves=NULL;
+    time = NULL;
+    activity = NULL;
+    //xClickPosition=0;
+    //yClickPosition=0;
 }
 
 MainWindow::~MainWindow()
 {
     if (procs!=NULL) delete [] procs;
+    if (time!=NULL) delete [] time;
+    if (activity!=NULL) delete [] activity;
     delete ui;
 }
 
-void MainWindow::on_CountButton_clicked()
+void MainWindow::on_ComputeButton_clicked()
 {
     if(ui->ProcNumEdit->text().toInt()==0)
     {
@@ -29,7 +37,6 @@ void MainWindow::on_CountButton_clicked()
         return;
     }
     killTimer(timerID);
-    ui->textEdit->clear();
     if(ui->plotWidget->layout()!=NULL)
     {
         if (procs!=NULL) delete [] procs;
@@ -40,9 +47,9 @@ void MainWindow::on_CountButton_clicked()
         setUpdatesEnabled(true);
     }
     int procNum = ui->ProcNumEdit->text().toInt();
-    PlotLayout *pl = new PlotLayout(procNum, CURVE_LENGTH);
+    PlotLayout *pl = new PlotLayout(procNum, CURVE_MIN_LENGTH, PLOT_MAX_SIZE, QApplication::desktop()->width());
     ui->plotWidget->setLayout(pl);
-    plots=pl->plots;//((PlotLayout*)(ui->plotWidget->layout()))->plots;
+    plots=pl->plots;
     curves= pl->curves;
     QByteArray ar;
 
@@ -62,8 +69,6 @@ void MainWindow::on_CountButton_clicked()
     p->waitForFinished();
     QStringList trace=QString::fromLocal8Bit(ar).split('\n');
     if(trace.last().isEmpty())trace.removeLast();
-    ui->textEdit->setText(QString::fromLocal8Bit(ar));
-    ui->textEdit->verticalScrollBar()->setValue(ui->textEdit->verticalScrollBar()->maximum());
 
     procs = new processor[procNum];
     int currentProc=0;
@@ -99,25 +104,29 @@ void MainWindow::on_CountButton_clicked()
                 for (int i=solves[currentProc];i<dones[currentProc];i++) procs[currentProc].activity[i]=1;
             }
     }
-    //QMessageBox::information(this,"",QString::number(traceLine[1].toInt()));
     ui->PlayButton->setEnabled(true);
     ui->PauseButton->setEnabled(true);
     ui->StopButton->setEnabled(true);
     ui->horizontalSlider->setEnabled(true);
     ui->horizontalSlider->setValue(0);
     ui->horizontalSlider->setMaximum(maxTime);
+    ui->DTSlider->setEnabled(true);
+    ui->DTSlider->setValue(1);
+    ui->XScaleSlider->setEnabled(true);
+    ui->XScaleSlider->setValue(0);
+    ui->XScaleSlider->setMaximum(maxTime+1-CURVE_MIN_LENGTH);
+    time = new double[CURVE_MIN_LENGTH];
+    activity =  new double[CURVE_MIN_LENGTH];
 }
 
 void MainWindow::timerEvent(QTimerEvent *)
 {
-    if (ui->DTEdit->text().toInt()!=0)
-        if(ui->horizontalSlider->value() < ui->horizontalSlider->maximum())ui->horizontalSlider->setValue(ui->horizontalSlider->value()+ui->DTEdit->text().toInt());
+    if(ui->horizontalSlider->value() < ui->horizontalSlider->maximum())ui->horizontalSlider->setValue(ui->horizontalSlider->value()+ui->DTSlider->value());
     if (ui->horizontalSlider->value()==ui->horizontalSlider->maximum()) killTimer(timerID);
 }
 
 void MainWindow::on_PlayButton_clicked()
 {
-
     killTimer(timerID);
     timerID=startTimer(100);
 }
@@ -135,11 +144,40 @@ void MainWindow::on_PauseButton_clicked()
 
 void MainWindow::on_horizontalSlider_valueChanged(int value)
 {
+    updatePlots(value);
+}
+
+/*void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    if(event->buttons()==Qt::RightButton)
+    {
+        xClickPosition=event->x();
+        yClickPosition=event->y();
+    }
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+
+    if(event->buttons()==Qt::RightButton)
+        qDebug("ooh!%d",event->x()-xClickPosition);
+
+        for (int i=0;i<plots->count();i++)
+        {
+            if(plots->at(i)->maximumWidth()+(event->x()-xClickPosition))
+            plots->at(i)->maximumWidth()
+            //plots->at(i)->setAxisMaxMajor(QwtPlot::xBottom,);
+        }
+}
+*/
+
+void MainWindow::updatePlots(int value)
+{
     for(int j=0;j < plots->length();j++)
     {
-        plots->at(j)->setAxisScale( QwtPlot::xBottom, value - CURVE_LENGTH, value);
+        plots->at(j)->setAxisScale( QwtPlot::xBottom, value - CURVE_MIN_LENGTH - ui->XScaleSlider->value(), value);
         int x = value;
-        for(int i=CURVE_LENGTH-1;i>=0;i--)
+        for(int i=CURVE_MIN_LENGTH + ui->XScaleSlider->value()-1;i>=0;i--)
         {
             if(x>0)
             {
@@ -153,7 +191,16 @@ void MainWindow::on_horizontalSlider_valueChanged(int value)
             }
             x--;
         }
-        curves->at(j)->setSamples(time, activity, CURVE_LENGTH );
+        curves->at(j)->setSamples(time, activity, CURVE_MIN_LENGTH + ui->XScaleSlider->value() );
         plots->at(j)->replot();
     }
+}
+
+void MainWindow::on_XScaleSlider_valueChanged(int value)
+{
+    delete [] time;
+    delete [] activity;
+    time= new double[CURVE_MIN_LENGTH+value];
+    activity= new double[CURVE_MIN_LENGTH+value];
+    updatePlots(ui->horizontalSlider->value());
 }

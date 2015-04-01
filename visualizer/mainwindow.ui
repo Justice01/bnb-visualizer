@@ -28,7 +28,7 @@
            <x>0</x>
            <y>0</y>
            <width>904</width>
-           <height>190</height>
+           <height>355</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout">
@@ -92,9 +92,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QTextEdit" name="textEdit"/>
-      </item>
-      <item>
        <widget class="QWidget" name="controlWidget" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
@@ -150,32 +147,67 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>dt:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
+          <widget class="QWidget" name="widget_3" native="true">
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>dt:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>xScale:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="DTEdit">
-           <property name="maximumSize">
-            <size>
-             <width>150</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>1</string>
-           </property>
+          <widget class="QWidget" name="widget_2" native="true">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QSlider" name="DTSlider">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>10</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSlider" name="XScaleSlider">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="CountButton">
+          <widget class="QPushButton" name="ComputeButton">
            <property name="text">
-            <string>Count</string>
+            <string>Compute</string>
            </property>
           </widget>
          </item>
