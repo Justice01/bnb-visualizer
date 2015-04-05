@@ -7,25 +7,23 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    procs=NULL;
     plots=NULL;
     curves=NULL;
-    time = NULL;
-    activity = NULL;
-    //xClickPosition=0;
-    //yClickPosition=0;
+    scene = NULL;
+    maxTime=0;
+    procNum=0;
+    connect(ui->actionLoad_trace,SIGNAL(triggered()),this,SLOT(loadTrace()));
 }
 
 MainWindow::~MainWindow()
 {
-    if (procs!=NULL) delete [] procs;
-    if (time!=NULL) delete [] time;
-    if (activity!=NULL) delete [] activity;
+    if(scene!=NULL) delete scene;
     delete ui;
 }
 
 void MainWindow::on_ComputeButton_clicked()
 {
+    //preparing input data
     if(ui->ProcNumEdit->text().toInt()==0)
     {
         QMessageBox::information(this,"","Wrong process number!");
@@ -36,23 +34,8 @@ void MainWindow::on_ComputeButton_clicked()
         QMessageBox::information(this,"","Wrong step!");
         return;
     }
-    killTimer(timerID);
-    if(ui->plotWidget->layout()!=NULL)
-    {
-        if (procs!=NULL) delete [] procs;
-        procs=NULL;
-        delete(ui->plotWidget->layout());
-        setUpdatesEnabled(false);
-        this->repaint();
-        setUpdatesEnabled(true);
-    }
-    int procNum = ui->ProcNumEdit->text().toInt();
-    PlotLayout *pl = new PlotLayout(procNum, CURVE_MIN_LENGTH, PLOT_MAX_SIZE, QApplication::desktop()->width());
-    ui->plotWidget->setLayout(pl);
-    plots=pl->plots;
-    curves= pl->curves;
+    //reading bnb-simulators data (trace)
     QByteArray ar;
-
     QProcess *p = new QProcess();
     p->setReadChannelMode(QProcess::MergedChannels);
     p->start("./bnbtest");
@@ -70,53 +53,37 @@ void MainWindow::on_ComputeButton_clicked()
     QStringList trace=QString::fromLocal8Bit(ar).split('\n');
     if(trace.last().isEmpty())trace.removeLast();
 
-    procs = new processor[procNum];
-    int currentProc=0;
-    int maxTime = trace.last().split(' ').first().toInt();
-    int solves[procNum];
-    int dones[procNum];
-    for (int i=0; i<procNum;i++)
+    //parsing data from trace
+    parseTrace(trace,ui->ProcNumEdit->text().toInt());
+    //prepare plots tab
+    preparePlots();
+
+
+    //prepare scene for data exchange visualization tab
+    /*if(ui->graphicsView->scene()!=NULL)
     {
-        solves[i]=0;
-        dones[i]=0;
+        delete(ui->graphicsView->scene());
+        setUpdatesEnabled(false);
+        this->repaint();
+        setUpdatesEnabled(true);
     }
-    for (int i=0; i<procNum;i++)
+    scene= new QGraphicsScene();
+    ui->graphicsView->setScene(scene);
+    QVector<QGraphicsRectItem*> rects(procNum);
+    QVector<QGraphicsRectItem*> rects2(procNum);
+    for(int i=0;i<procNum;i++)
     {
-        procs[i].activity= new int[maxTime+1];
-        for (int j=0;j<=maxTime;j++)procs[i].activity[j]=0;
-    }
-    QStringList traceLine;
-    for (int j=0; j<trace.length();j++)
-    {
-        traceLine = trace[j].split(' ');
-        if(traceLine.length()>2)
-            if(traceLine.at(2).toInt()==9)
-            {
-                currentProc=traceLine.at(1).toInt();
-                solves[currentProc]=traceLine.at(0).toInt();
-                for (int i=dones[currentProc];i<solves[currentProc];i++) procs[currentProc].activity[i]=0;
-            }
-        if(traceLine.length()>7)
-            if(traceLine.at(7).toInt()==2)
-            {
-                currentProc=traceLine.at(1).toInt();
-                dones[currentProc]=traceLine.at(0).toInt();
-                for (int i=solves[currentProc];i<dones[currentProc];i++) procs[currentProc].activity[i]=1;
-            }
-    }
-    ui->PlayButton->setEnabled(true);
-    ui->PauseButton->setEnabled(true);
-    ui->StopButton->setEnabled(true);
-    ui->horizontalSlider->setEnabled(true);
-    ui->horizontalSlider->setValue(0);
-    ui->horizontalSlider->setMaximum(maxTime);
-    ui->DTSlider->setEnabled(true);
-    ui->DTSlider->setValue(1);
-    ui->XScaleSlider->setEnabled(true);
-    ui->XScaleSlider->setValue(0);
-    ui->XScaleSlider->setMaximum(maxTime+1-CURVE_MIN_LENGTH);
-    time = new double[CURVE_MIN_LENGTH];
-    activity =  new double[CURVE_MIN_LENGTH];
+        rects[i]= new QGraphicsRectItem();
+        rects[i]->setPen(QPen(Qt::black));
+        rects[i]->setBrush(QBrush(Qt::black));
+        rects[i]->setRect((i+1)*12,0,10,10);
+        rects2[i]= new QGraphicsRectItem();
+        rects2[i]->setPen(QPen(Qt::black));
+        rects2[i]->setBrush(QBrush(Qt::black));
+        rects2[i]->setRect(0,-(i+1)*12,10,10);
+        scene->addItem(rects[i]);
+        scene->addItem(rects2[i]);
+    }*/
 }
 
 void MainWindow::timerEvent(QTimerEvent *)
@@ -147,60 +114,149 @@ void MainWindow::on_horizontalSlider_valueChanged(int value)
     updatePlots(value);
 }
 
-/*void MainWindow::mousePressEvent(QMouseEvent *event)
-{
-    if(event->buttons()==Qt::RightButton)
-    {
-        xClickPosition=event->x();
-        yClickPosition=event->y();
-    }
-}
-
-void MainWindow::mouseMoveEvent(QMouseEvent *event)
-{
-
-    if(event->buttons()==Qt::RightButton)
-        qDebug("ooh!%d",event->x()-xClickPosition);
-
-        for (int i=0;i<plots->count();i++)
-        {
-            if(plots->at(i)->maximumWidth()+(event->x()-xClickPosition))
-            plots->at(i)->maximumWidth()
-            //plots->at(i)->setAxisMaxMajor(QwtPlot::xBottom,);
-        }
-}
-*/
-
 void MainWindow::updatePlots(int value)
 {
-    for(int j=0;j < plots->length();j++)
+    if(ui->tabWidget->currentIndex()==0)
     {
-        plots->at(j)->setAxisScale( QwtPlot::xBottom, value - CURVE_MIN_LENGTH - ui->XScaleSlider->value(), value);
-        int x = value;
-        for(int i=CURVE_MIN_LENGTH + ui->XScaleSlider->value()-1;i>=0;i--)
+        for(int j=0;j < plots->length();j++)
         {
-            if(x>0)
+            plots->at(j)->setAxisScale( QwtPlot::xBottom, value - CURVE_MIN_LENGTH - ui->XScaleSlider->value(), value);
+            int x = value;
+            for(int i=CURVE_MIN_LENGTH + ui->XScaleSlider->value()-1;i>=0;i--)
             {
-                time[i] = x;
-                activity[i] = procs[j].activity[x];
+                if(x>0)
+                {
+                    time[i] = x;
+                    activity[i] = procs[j].activity[x];
+                }
+                else
+                {
+                    time[i]=0.0;
+                    activity[i] = 0.0;
+                }
+                x--;
             }
-            else
-            {
-                time[i]=0.0;
-                activity[i] = 0.0;
-            }
-            x--;
+            curves->at(j)->setSamples(time, activity);
+            plots->at(j)->replot();
         }
-        curves->at(j)->setSamples(time, activity, CURVE_MIN_LENGTH + ui->XScaleSlider->value() );
-        plots->at(j)->replot();
     }
 }
 
 void MainWindow::on_XScaleSlider_valueChanged(int value)
 {
-    delete [] time;
-    delete [] activity;
-    time= new double[CURVE_MIN_LENGTH+value];
-    activity= new double[CURVE_MIN_LENGTH+value];
+    time.resize(CURVE_MIN_LENGTH+value);
+    activity.resize(CURVE_MIN_LENGTH+value);
     updatePlots(ui->horizontalSlider->value());
 }
+
+void MainWindow::loadTrace()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                QString::fromUtf8("Open file"),
+                                QDir::currentPath(),
+                                tr("Text (*.txt)"));
+    if(fileName.isEmpty()) return;
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly))
+    {
+        QMessageBox::information(this,"","File could not be read!");
+        return;
+    }
+    QTextStream reader(&file);
+    QStringList trace;
+    while(!reader.atEnd())
+    {
+        trace.append(reader.readLine());
+    }
+    file.close();
+    parseTrace(trace);
+    preparePlots();
+}
+
+void MainWindow::parseTrace(QStringList &trace, int procNum)
+{
+    QStringList traceLine;
+    //if second parametr 0 determine procNum from trace
+    if (procNum==0)
+    {
+        for(int i=0;i<trace.length();i++)
+        {
+            traceLine=trace[i].split(' ');
+            if(traceLine.length()>2)
+            {
+                if(traceLine.at(1).toInt()>=procNum && traceLine.at(2).toInt()==6) procNum=traceLine.at(1).toInt()+1;
+                else if(traceLine.at(1).toInt()<procNum || traceLine.at(2).toInt()!=6) break;
+            }
+        }
+    }
+
+    this->procNum=procNum;
+    procs.resize(procNum);
+    int currentProc=0;
+    maxTime = trace.last().split(' ').first().toInt();
+    int solves[procNum];
+    int dones[procNum];
+    for (int i=0; i<procNum;i++)
+    {
+        solves[i]=0;
+        dones[i]=0;
+    }
+    for (int i=0; i<procNum;i++)
+    {
+        procs[i].activity.resize(maxTime+1);
+        for (int j=0;j<=maxTime;j++)procs[i].activity[j]=0;
+    }
+
+    for (int j=0; j<trace.length();j++)
+    {
+        traceLine = trace[j].split(' ');
+        if(traceLine.length()>2)
+            if(traceLine.at(2).toInt()==9)
+            {
+                currentProc=traceLine.at(1).toInt();
+                solves[currentProc]=traceLine.at(0).toInt();
+                for (int i=dones[currentProc];i<solves[currentProc];i++) procs[currentProc].activity[i]=0;
+            }
+        if(traceLine.length()>7)
+            if(traceLine.at(7).toInt()==2)
+            {
+                currentProc=traceLine.at(1).toInt();
+                dones[currentProc]=traceLine.at(0).toInt();
+                for (int i=solves[currentProc];i<dones[currentProc];i++) procs[currentProc].activity[i]=1;
+            }
+    }
+}
+void MainWindow::preparePlots()
+{
+    //stop timer if started
+    killTimer(timerID);
+    //preparing plots tab
+    if(ui->plotWidget->layout()!=NULL)
+    {
+        delete(ui->plotWidget->layout());
+        setUpdatesEnabled(false);
+        this->repaint();
+        setUpdatesEnabled(true);
+    }
+
+    PlotLayout *pl = new PlotLayout(procNum, CURVE_MIN_LENGTH, PLOT_MAX_SIZE, QApplication::desktop()->width());
+    ui->plotWidget->setLayout(pl);
+    plots=pl->plots;
+    curves= pl->curves;
+    //preparing control widget
+    ui->PlayButton->setEnabled(true);
+    ui->PauseButton->setEnabled(true);
+    ui->StopButton->setEnabled(true);
+    ui->horizontalSlider->setEnabled(true);
+    ui->horizontalSlider->setValue(0);
+    ui->horizontalSlider->setMaximum(maxTime);
+    ui->DTSlider->setEnabled(true);
+    ui->DTSlider->setValue(1);
+    ui->XScaleSlider->setEnabled(true);
+    ui->XScaleSlider->setValue(0);
+    ui->XScaleSlider->setMaximum(maxTime+1-CURVE_MIN_LENGTH);
+    // initializing curves data
+    time.resize(CURVE_MIN_LENGTH);
+    activity.resize(CURVE_MIN_LENGTH);
+}
+

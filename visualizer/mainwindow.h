@@ -12,9 +12,14 @@
 #include <qmessagebox.h>
 #include <qdesktopwidget.h>
 //#include <stdlib.h>
+#include <qgraphicsscene.h>
+#include <qgraphicsview.h>
+#include <qgraphicsitem.h>
+#include <qfiledialog.h>
+//#include <qtextstream.h>
 
 #define CURVE_MIN_LENGTH 100
-#define PLOT_MAX_SIZE 200
+#define PLOT_MAX_SIZE 250
 namespace Ui {
 class MainWindow;
 }
@@ -26,8 +31,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    //virtual void mouseMoveEvent(QMouseEvent *event);
-    //virtual void mousePressEvent(QMouseEvent *event);
 private slots:
     void on_ComputeButton_clicked();
 
@@ -39,21 +42,23 @@ private slots:
 
     void on_horizontalSlider_valueChanged(int value);
 
-
     void on_XScaleSlider_valueChanged(int value);
-
+public slots:
+    void loadTrace();
 private:
     Ui::MainWindow *ui;
-    processor *procs;
+    QVector<processor> procs;
     QList<QwtPlot*> *plots;
     QList<QwtPlotCurve*> *curves;
     int timerID;
-    double * time;
-    double * activity;
-    //int xClickPosition;
-    //int yClickPosition;
+    int procNum;
+    int maxTime;
+    QVector<double> time;
+    QVector<double> activity;
+    QGraphicsScene * scene;
+    void preparePlots();
     void updatePlots(int value);
-
+    void parseTrace(QStringList &trace, int procNum=0);
 protected:
     virtual void timerEvent(QTimerEvent *);
 };

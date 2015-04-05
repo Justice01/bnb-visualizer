@@ -1,13 +1,9 @@
 #ifndef PROCESSOR
 #define PROCESSOR
-
+#include <qvector.h>
 struct processor
 {
-    int * activity;
-
-    processor(){activity=NULL;}
-
-    ~processor(){ if (activity!=NULL) delete [] activity; }
+    QVector<int> activity;
 };
 
 #endif // PROCESSOR

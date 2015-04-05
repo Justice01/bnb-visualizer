@@ -18,7 +18,8 @@ PlotLayout::PlotLayout(int procNum, int curveLength, int plotMaxSize, int screen
         plot->setMinimumHeight(plotMaxSize/1.5);
         plots->append(plot);
         curve = new QwtPlotCurve();
-        curve->setPen( Qt::blue,4);
+        curve->setPen( Qt::blue);
+        curve->setBrush(Qt::blue);
         curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
         curve->attach(plot);
         curves->append(curve);
