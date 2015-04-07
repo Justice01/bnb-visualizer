@@ -58,32 +58,8 @@ void MainWindow::on_ComputeButton_clicked()
     //prepare plots tab
     preparePlots();
 
-
     //prepare scene for data exchange visualization tab
-    /*if(ui->graphicsView->scene()!=NULL)
-    {
-        delete(ui->graphicsView->scene());
-        setUpdatesEnabled(false);
-        this->repaint();
-        setUpdatesEnabled(true);
-    }
-    scene= new QGraphicsScene();
-    ui->graphicsView->setScene(scene);
-    QVector<QGraphicsRectItem*> rects(procNum);
-    QVector<QGraphicsRectItem*> rects2(procNum);
-    for(int i=0;i<procNum;i++)
-    {
-        rects[i]= new QGraphicsRectItem();
-        rects[i]->setPen(QPen(Qt::black));
-        rects[i]->setBrush(QBrush(Qt::black));
-        rects[i]->setRect((i+1)*12,0,10,10);
-        rects2[i]= new QGraphicsRectItem();
-        rects2[i]->setPen(QPen(Qt::black));
-        rects2[i]->setBrush(QBrush(Qt::black));
-        rects2[i]->setRect(0,-(i+1)*12,10,10);
-        scene->addItem(rects[i]);
-        scene->addItem(rects2[i]);
-    }*/
+    //prepareExchange();
 }
 
 void MainWindow::timerEvent(QTimerEvent *)
@@ -176,8 +152,10 @@ void MainWindow::loadTrace()
 void MainWindow::parseTrace(QStringList &trace, int procNum)
 {
     QStringList traceLine;
+    bool procNumSet=true;
+    if (procNum==0)procNumSet=false;
     //if second parametr 0 determine procNum from trace
-    if (procNum==0)
+    if (!procNumSet)
     {
         for(int i=0;i<trace.length();i++)
         {
@@ -192,7 +170,9 @@ void MainWindow::parseTrace(QStringList &trace, int procNum)
 
     this->procNum=procNum;
     procs.resize(procNum);
+    procs.squeeze();
     int currentProc=0;
+    int steps=0;
     maxTime = trace.last().split(' ').first().toInt();
     int solves[procNum];
     int dones[procNum];
@@ -200,10 +180,8 @@ void MainWindow::parseTrace(QStringList &trace, int procNum)
     {
         solves[i]=0;
         dones[i]=0;
-    }
-    for (int i=0; i<procNum;i++)
-    {
         procs[i].activity.resize(maxTime+1);
+        procs[i].activity.squeeze();
         for (int j=0;j<=maxTime;j++)procs[i].activity[j]=0;
     }
 
@@ -213,6 +191,7 @@ void MainWindow::parseTrace(QStringList &trace, int procNum)
         if(traceLine.length()>2)
             if(traceLine.at(2).toInt()==9)
             {
+                if(!procNumSet && traceLine.at(0).toInt()==0) steps=traceLine.at(3).toInt();
                 currentProc=traceLine.at(1).toInt();
                 solves[currentProc]=traceLine.at(0).toInt();
                 for (int i=dones[currentProc];i<solves[currentProc];i++) procs[currentProc].activity[i]=0;
@@ -224,6 +203,11 @@ void MainWindow::parseTrace(QStringList &trace, int procNum)
                 dones[currentProc]=traceLine.at(0).toInt();
                 for (int i=solves[currentProc];i<dones[currentProc];i++) procs[currentProc].activity[i]=1;
             }
+    }
+    if(!procNumSet)
+    {
+        ui->StepsEdit->setText(QString::number(steps));
+        ui->ProcNumEdit->setText(QString::number(procNum));
     }
 }
 void MainWindow::preparePlots()
@@ -258,5 +242,34 @@ void MainWindow::preparePlots()
     // initializing curves data
     time.resize(CURVE_MIN_LENGTH);
     activity.resize(CURVE_MIN_LENGTH);
+    time.squeeze();
+    activity.squeeze();
 }
 
+/*void MainWindow::prepareExchange()
+{
+    if(ui->graphicsView->scene()!=NULL)
+    {
+        delete(ui->graphicsView->scene());
+        setUpdatesEnabled(false);
+        this->repaint();
+        setUpdatesEnabled(true);
+    }
+    scene= new QGraphicsScene();
+    ui->graphicsView->setScene(scene);
+    QVector<QGraphicsRectItem*> rects(procNum);
+    QVector<QGraphicsRectItem*> rects2(procNum);
+    for(int i=0;i<procNum;i++)
+    {
+        rects[i]= new QGraphicsRectItem();
+        rects[i]->setPen(QPen(Qt::black));
+        rects[i]->setBrush(QBrush(Qt::black));
+        rects[i]->setRect((i+1)*12,0,10,10);
+        rects2[i]= new QGraphicsRectItem();
+        rects2[i]->setPen(QPen(Qt::black));
+        rects2[i]->setBrush(QBrush(Qt::black));
+        rects2[i]->setRect(0,-(i+1)*12,10,10);
+        scene->addItem(rects[i]);
+        scene->addItem(rects2[i]);
+    }
+}*/

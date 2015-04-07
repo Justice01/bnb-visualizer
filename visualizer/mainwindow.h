@@ -57,6 +57,7 @@ private:
     QVector<double> activity;
     QGraphicsScene * scene;
     void preparePlots();
+    //void prepareExchange();
     void updatePlots(int value);
     void parseTrace(QStringList &trace, int procNum=0);
 protected:
