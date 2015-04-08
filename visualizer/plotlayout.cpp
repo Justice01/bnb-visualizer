@@ -38,7 +38,7 @@ PlotLayout::~PlotLayout()
     curves->clear();
     plots->clear();
     delete curves;
-    delete (plots);
+    delete plots;
 }
 
 

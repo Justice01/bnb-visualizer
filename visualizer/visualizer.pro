@@ -13,11 +13,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    plotlayout.cpp
+    plotlayout.cpp \
+    exchangescene.cpp
 
 HEADERS  += mainwindow.h \
     plotlayout.h \
-    processor.h
+    processor.h \
+    exchangescene.h
 
 FORMS    += mainwindow.ui
 

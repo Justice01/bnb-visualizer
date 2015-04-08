@@ -7,7 +7,7 @@
 class PlotLayout : public QGridLayout
 {
 public:
-    explicit PlotLayout(int procNum, int curveLength, int plotMaxSize, int screenWidth);
+    PlotLayout(int procNum, int curveLength, int plotMaxSize, int screenWidth);
     QList<QwtPlot*> *plots;
     QList<QwtPlotCurve*> *curves;
 
