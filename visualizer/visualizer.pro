@@ -14,12 +14,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     plotlayout.cpp \
-    exchangescene.cpp
+    exchangeview.cpp \
+    gridprocview.cpp
 
 HEADERS  += mainwindow.h \
     plotlayout.h \
     processor.h \
-    exchangescene.h
+    exchangeview.h \
+    gridprocview.h
 
 FORMS    += mainwindow.ui
 

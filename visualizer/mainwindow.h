@@ -17,9 +17,12 @@
 #include <qgraphicsitem.h>
 #include <qfiledialog.h>
 //#include <qtextstream.h>
+#include "exchangeview.h"
+#include "gridprocview.h"
 
 #define CURVE_MIN_LENGTH 100
 #define PLOT_MAX_SIZE 250
+#define RECT_SIZE 10
 namespace Ui {
 class MainWindow;
 }
@@ -50,14 +53,16 @@ private:
     QVector<processor> procs;
     QList<QwtPlot*> *plots;
     QList<QwtPlotCurve*> *curves;
+    QList<QGraphicsRectItem*> *rects;
     int timerID;
     int procNum;
     int maxTime;
     QVector<double> time;
     QVector<double> activity;
-    QGraphicsScene * scene;
     void preparePlots();
-    //void prepareExchange();
+    void prepareGridProc();
+    void prepareExchange();
+    void prepareControlWidget();
     void updatePlots(int value);
     void parseTrace(QStringList &trace, int procNum=0);
 protected:

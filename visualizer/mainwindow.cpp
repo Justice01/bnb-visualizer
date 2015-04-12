@@ -9,7 +9,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     plots=NULL;
     curves=NULL;
-    scene = NULL;
     maxTime=0;
     procNum=0;
     connect(ui->actionLoad_trace,SIGNAL(triggered()),this,SLOT(loadTrace()));
@@ -17,12 +16,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    if(scene!=NULL) delete scene;
+    //if(scene!=NULL) delete scene;
     delete ui;
 }
 
 void MainWindow::on_ComputeButton_clicked()
 {
+    //stop timer if started
+    killTimer(timerID);
     //preparing input data
     if(ui->ProcNumEdit->text().toInt()==0)
     {
@@ -57,9 +58,12 @@ void MainWindow::on_ComputeButton_clicked()
     parseTrace(trace,ui->ProcNumEdit->text().toInt());
     //prepare plots tab
     preparePlots();
-
+    //prepare processors grid tab
+    prepareGridProc();
     //prepare scene for data exchange visualization tab
-    //prepareExchange();
+    prepareExchange();
+    //prepare control widget
+    prepareControlWidget();
 }
 
 void MainWindow::timerEvent(QTimerEvent *)
@@ -92,8 +96,9 @@ void MainWindow::on_horizontalSlider_valueChanged(int value)
 
 void MainWindow::updatePlots(int value)
 {
-    if(ui->tabWidget->currentIndex()==0)
+    if(ui->tabWidget->currentWidget()==ui->PlotTab)
     {
+
         for(int j=0;j < plots->length();j++)
         {
             plots->at(j)->setAxisScale( QwtPlot::xBottom, value - CURVE_MIN_LENGTH - ui->XScaleSlider->value(), value);
@@ -116,6 +121,24 @@ void MainWindow::updatePlots(int value)
             plots->at(j)->replot();
         }
     }
+    if(ui->tabWidget->currentWidget()==ui->GridProcTab)
+    {
+        for (int i=0;i<rects->length();i++)
+        {
+            if(procs[i].activity[value]==1)
+            {
+                rects->at(i)->setBrush(Qt::blue);
+            }
+            else if(procs[i].activity[value]==0)
+            {
+                rects->at(i)->setBrush(Qt::gray);
+            }
+        }
+    }
+    if(ui->tabWidget->currentWidget()==ui->ExchangeTab)
+    {
+
+    }
 }
 
 void MainWindow::on_XScaleSlider_valueChanged(int value)
@@ -127,6 +150,8 @@ void MainWindow::on_XScaleSlider_valueChanged(int value)
 
 void MainWindow::loadTrace()
 {
+    //stop timer if started
+    killTimer(timerID);
     QString fileName = QFileDialog::getOpenFileName(this,
                                 QString::fromUtf8("Open file"),
                                 QDir::currentPath(),
@@ -146,7 +171,14 @@ void MainWindow::loadTrace()
     }
     file.close();
     parseTrace(trace);
+    //prepare plots tab
     preparePlots();
+    //prepare processors grid tab
+    prepareGridProc();
+    //prepare scene for data exchange visualization tab
+    prepareExchange();
+    //prepare control widget
+    prepareControlWidget();
 }
 
 void MainWindow::parseTrace(QStringList &trace, int procNum)
@@ -212,8 +244,6 @@ void MainWindow::parseTrace(QStringList &trace, int procNum)
 }
 void MainWindow::preparePlots()
 {
-    //stop timer if started
-    killTimer(timerID);
     //preparing plots tab
     if(ui->plotWidget->layout()!=NULL)
     {
@@ -227,6 +257,47 @@ void MainWindow::preparePlots()
     ui->plotWidget->setLayout(pl);
     plots=pl->plots;
     curves= pl->curves;
+    // initializing curves data
+    time.resize(CURVE_MIN_LENGTH);
+    activity.resize(CURVE_MIN_LENGTH);
+    time.squeeze();
+    activity.squeeze();
+}
+
+void MainWindow::prepareGridProc()
+{
+    //preparing processes grid tab
+    if(ui->gridProcLayout->itemAt(0)!=NULL)
+    {
+        QWidget *w=ui->gridProcLayout->itemAt(0)->widget();
+        ui->exchangeLayout->removeWidget(w);
+        delete(w);
+        setUpdatesEnabled(false);
+        this->repaint();
+        setUpdatesEnabled(true);
+    }
+    GridProcView *view = new GridProcView(procNum,RECT_SIZE,QApplication::desktop()->width());
+    rects=view->rects;
+    ui->gridProcLayout->addWidget(view);
+}
+
+void MainWindow::prepareExchange()
+{
+    //preparing exchange tab
+    if(ui->exchangeLayout->itemAt(0)!=NULL)
+    {
+        QWidget *w=ui->exchangeLayout->itemAt(0)->widget();
+        ui->exchangeLayout->removeWidget(w);
+        delete(w);
+        setUpdatesEnabled(false);
+        this->repaint();
+        setUpdatesEnabled(true);
+    }
+    ExchangeView *view = new ExchangeView(procNum,RECT_SIZE,QApplication::desktop()->width());
+    ui->exchangeLayout->addWidget(view);
+}
+void MainWindow::prepareControlWidget()
+{
     //preparing control widget
     ui->PlayButton->setEnabled(true);
     ui->PauseButton->setEnabled(true);
@@ -239,37 +310,4 @@ void MainWindow::preparePlots()
     ui->XScaleSlider->setEnabled(true);
     ui->XScaleSlider->setValue(0);
     ui->XScaleSlider->setMaximum(maxTime+1-CURVE_MIN_LENGTH);
-    // initializing curves data
-    time.resize(CURVE_MIN_LENGTH);
-    activity.resize(CURVE_MIN_LENGTH);
-    time.squeeze();
-    activity.squeeze();
 }
-
-/*void MainWindow::prepareExchange()
-{
-    if(ui->graphicsView->scene()!=NULL)
-    {
-        delete(ui->graphicsView->scene());
-        setUpdatesEnabled(false);
-        this->repaint();
-        setUpdatesEnabled(true);
-    }
-    scene= new QGraphicsScene();
-    ui->graphicsView->setScene(scene);
-    QVector<QGraphicsRectItem*> rects(procNum);
-    QVector<QGraphicsRectItem*> rects2(procNum);
-    for(int i=0;i<procNum;i++)
-    {
-        rects[i]= new QGraphicsRectItem();
-        rects[i]->setPen(QPen(Qt::black));
-        rects[i]->setBrush(QBrush(Qt::black));
-        rects[i]->setRect((i+1)*12,0,10,10);
-        rects2[i]= new QGraphicsRectItem();
-        rects2[i]->setPen(QPen(Qt::black));
-        rects2[i]->setBrush(QBrush(Qt::black));
-        rects2[i]->setRect(0,-(i+1)*12,10,10);
-        scene->addItem(rects[i]);
-        scene->addItem(rects2[i]);
-    }
-}*/
