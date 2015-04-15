@@ -5,20 +5,17 @@
 #include "plotlayout.h"
 #include <qscrollarea.h>
 #include <qprocess.h>
-//#include <qiodevice.h>
-//#include <qtextcodec.h>
 #include <qscrollbar.h>
 #include "processor.h"
 #include <qmessagebox.h>
 #include <qdesktopwidget.h>
-//#include <stdlib.h>
 #include <qgraphicsscene.h>
 #include <qgraphicsview.h>
 #include <qgraphicsitem.h>
 #include <qfiledialog.h>
-//#include <qtextstream.h>
 #include "exchangeview.h"
 #include "gridprocview.h"
+#include "bnbscheduler.hpp"
 
 #define CURVE_MIN_LENGTH 100
 #define PLOT_MAX_SIZE 250
@@ -52,17 +49,19 @@ private:
     Ui::MainWindow *ui;
     QVector<processor> procs;
     QList<QwtPlot*> *plots;
-    QList<QwtPlotCurve*> *curves;
+    QList<QwtPlotCurve*> *activityCurves;
+    QList<QwtPlotCurve*> *sendingCurves;
+    QList<QwtPlotCurve*> *receivingCurves;
     QList<QGraphicsRectItem*> *rects;
     int timerID;
     int procNum;
     int maxTime;
     QVector<double> time;
-    QVector<double> activity;
-    void preparePlots();
-    void prepareGridProc();
-    void prepareExchange();
-    void prepareControlWidget();
+    /*QVector<double> activity;
+    QVector<double> sending;
+    QVector<double> receiving;*/
+    processor subproc;
+    void prepareVisualization(QStringList &trace, int procNum=0);
     void updatePlots(int value);
     void parseTrace(QStringList &trace, int procNum=0);
 protected:

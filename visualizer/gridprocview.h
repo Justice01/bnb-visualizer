@@ -9,7 +9,7 @@
 class GridProcView : public QGraphicsView
 {
 public:
-    GridProcView(int procNum, int procSize, int screenWidth);
+    GridProcView(int procNum, int procSize);
     QList<QGraphicsRectItem*> *rects;
     QGraphicsScene * scene;
     virtual ~GridProcView();

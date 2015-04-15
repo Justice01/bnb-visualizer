@@ -1,6 +1,6 @@
 #include "exchangeview.h"
 
-ExchangeView::ExchangeView(int procNum, int procSize, int screenWidth):QGraphicsView()
+ExchangeView::ExchangeView(int procNum, int procSize):QGraphicsView()
 {
     setDragMode(ScrollHandDrag);
     senders= new QList<QGraphicsRectItem*>();
@@ -14,7 +14,7 @@ ExchangeView::ExchangeView(int procNum, int procSize, int screenWidth):QGraphics
         sndr = new QGraphicsRectItem();
         sndr= new QGraphicsRectItem();
         sndr->setPen(QPen(Qt::black));
-        sndr->setBrush(QBrush(Qt::black));
+        sndr->setBrush(QBrush(Qt::gray));
         sndr->setRect((i+1)*(procSize+2),0,procSize,procSize);
         sndr->setToolTip(QString::number(i));
         senders->append(sndr);
@@ -22,7 +22,7 @@ ExchangeView::ExchangeView(int procNum, int procSize, int screenWidth):QGraphics
         rcvr = new QGraphicsRectItem();
         rcvr= new QGraphicsRectItem();
         rcvr->setPen(QPen(Qt::black));
-        rcvr->setBrush(QBrush(Qt::black));
+        rcvr->setBrush(QBrush(Qt::gray));
         rcvr->setRect(0,-(i+1)*(procSize+2),procSize,procSize);
         rcvr->setToolTip(QString::number(i));
         receivers->append(rcvr);

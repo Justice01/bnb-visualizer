@@ -9,7 +9,7 @@
 class ExchangeView : public QGraphicsView
 {
 public:
-    ExchangeView(int procNum, int procSize, int screenWidth);
+    ExchangeView(int procNum, int procSize);
     QList<QGraphicsRectItem*> *senders;
     QList<QGraphicsRectItem*> *receivers;
     QGraphicsScene * scene;

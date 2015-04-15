@@ -3,9 +3,13 @@
 PlotLayout::PlotLayout(int procNum, int curveLength, int plotMaxSize, int screenWidth):QGridLayout()
 {
     plots = new QList<QwtPlot*>();
-    curves = new QList<QwtPlotCurve*>();
+    activityCurves = new QList<QwtPlotCurve*>();
+    sendingCurves = new QList<QwtPlotCurve*>();
+    receivingCurves = new QList<QwtPlotCurve*>();
     QwtPlot *plot;
-    QwtPlotCurve *curve;
+    QwtPlotCurve *activityCurve;
+    QwtPlotCurve *sendingCurve;
+    QwtPlotCurve *receivingCurve;
     int numProcInLine = screenWidth/plotMaxSize - 1;
     for (int i=0;i<procNum;i++)
     {
@@ -17,12 +21,24 @@ PlotLayout::PlotLayout(int procNum, int curveLength, int plotMaxSize, int screen
         plot->setMaximumHeight(plotMaxSize);
         plot->setMinimumHeight(plotMaxSize/1.5);
         plots->append(plot);
-        curve = new QwtPlotCurve();
-        curve->setPen( Qt::blue);
-        curve->setBrush(Qt::blue);
-        curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-        curve->attach(plot);
-        curves->append(curve);
+        activityCurve = new QwtPlotCurve();
+        activityCurve->setPen( Qt::blue);
+        //activityCurve->setBrush(Qt::blue);
+        activityCurve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+        activityCurve->attach(plot);
+        activityCurves->append(activityCurve);
+        sendingCurve = new QwtPlotCurve();
+        sendingCurve->setPen( Qt::green);
+        //sendingCurve->setBrush(Qt::green);
+        sendingCurve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+        sendingCurve->attach(plot);
+        sendingCurves->append(sendingCurve);
+        receivingCurve = new QwtPlotCurve();
+        receivingCurve->setPen( Qt::red);
+        //receivingCurve->setBrush(Qt::red);
+        receivingCurve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+        receivingCurve->attach(plot);
+        receivingCurves->append(receivingCurve);
         this->addWidget(plot,i/numProcInLine,i%numProcInLine);
     }
 }
@@ -31,13 +47,19 @@ PlotLayout::~PlotLayout()
 {
     for (int i=0;i<plots->count();i++)
     {
-        delete curves->at(i);
+        delete activityCurves->at(i);
+        delete sendingCurves->at(i);
+        delete receivingCurves->at(i);
         this->removeWidget(plots->at(i));
         delete (plots->at(i));
     }
-    curves->clear();
+    activityCurves->clear();
+    sendingCurves->clear();
+    receivingCurves->clear();
     plots->clear();
-    delete curves;
+    delete activityCurves;
+    delete sendingCurves;
+    delete receivingCurves;
     delete plots;
 }
 

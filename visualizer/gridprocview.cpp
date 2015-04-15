@@ -1,6 +1,6 @@
 #include "gridprocview.h"
 
-GridProcView::GridProcView(int procNum, int procSize, int screenWidth):QGraphicsView()
+GridProcView::GridProcView(int procNum, int procSize):QGraphicsView()
 {
     setDragMode(ScrollHandDrag);
     rects= new QList<QGraphicsRectItem*>();

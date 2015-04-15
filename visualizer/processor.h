@@ -3,7 +3,9 @@
 #include <qvector.h>
 struct processor
 {
-    QVector<int> activity;
+    QVector<double> activity;
+    QVector<double> sending;
+    QVector<double> receiving;
 };
 
 #endif // PROCESSOR

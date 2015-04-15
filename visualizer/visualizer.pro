@@ -21,7 +21,9 @@ HEADERS  += mainwindow.h \
     plotlayout.h \
     processor.h \
     exchangeview.h \
-    gridprocview.h
+    gridprocview.h \
+    bnbscheduler.hpp \
+    solverinfo.hpp
 
 FORMS    += mainwindow.ui
 

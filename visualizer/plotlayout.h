@@ -9,8 +9,9 @@ class PlotLayout : public QGridLayout
 public:
     PlotLayout(int procNum, int curveLength, int plotMaxSize, int screenWidth);
     QList<QwtPlot*> *plots;
-    QList<QwtPlotCurve*> *curves;
-
+    QList<QwtPlotCurve*> *activityCurves;
+    QList<QwtPlotCurve*> *receivingCurves;
+    QList<QwtPlotCurve*> *sendingCurves;
     virtual ~PlotLayout();
 };
 
