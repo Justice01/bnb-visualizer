@@ -53,6 +53,8 @@ private:
     QList<QwtPlotCurve*> *sendingCurves;
     QList<QwtPlotCurve*> *receivingCurves;
     QList<QGraphicsRectItem*> *rects;
+    QList<QGraphicsRectItem*> *senders;
+    QList<QGraphicsRectItem*> *receivers;
     int timerID;
     int procNum;
     int maxTime;

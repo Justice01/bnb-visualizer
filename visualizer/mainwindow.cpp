@@ -143,7 +143,7 @@ void MainWindow::updatePlots(int value)
     }
     if(ui->tabWidget->currentWidget()==ui->ExchangeTab)
     {
-
+        //future code
     }
 }
 
@@ -240,6 +240,29 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     for (int j=0; j<trace.length();j++)
     {
         traceLine = trace[j].split(' ');
+        //reading events
+        if(traceLine.length()>7)
+        {
+            if(traceLine.at(7).toInt()==BNBScheduler::Events::DONE)
+            {
+                currentProc=traceLine.at(1).toInt();
+                dones[currentProc]=traceLine.at(0).toInt();
+                for (int i=solves[currentProc];i<dones[currentProc];i++) procs[currentProc].activity[i]=1;
+            }
+            else if(traceLine.at(7).toInt()==BNBScheduler::Events::SENT)
+            {
+                currentProc=traceLine.at(1).toInt();
+                sents[currentProc]=traceLine.at(0).toInt();
+                for (int i=sends[currentProc];i<=sents[currentProc];i++) procs[currentProc].sending[i]=1;
+            }
+            else if(traceLine.at(7).toInt()==BNBScheduler::Events::COMMAND_ARRIVED ||
+                    traceLine.at(7).toInt()==BNBScheduler::Events::DATA_ARRIVED)
+            {
+                currentProc=traceLine.at(1).toInt();
+                arrives[currentProc]=traceLine.at(0).toInt();
+                for (int i=recvs[currentProc];i<arrives[currentProc];i++) procs[currentProc].receiving[i]=1;
+            }
+        }
         //reading actions
         if(traceLine.length()>2)
         {
@@ -266,29 +289,7 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
                 //for (int i=arrives[currentProc];i<recvs[currentProc];i++) procs[currentProc].receiving[i]=0;
             }
         }
-        //reading events
-        if(traceLine.length()>7)
-        {
-            if(traceLine.at(7).toInt()==BNBScheduler::Events::DONE)
-            {
-                currentProc=traceLine.at(1).toInt();
-                dones[currentProc]=traceLine.at(0).toInt();
-                for (int i=solves[currentProc];i<=dones[currentProc];i++) procs[currentProc].activity[i]=1;
-            }
-            else if(traceLine.at(7).toInt()==BNBScheduler::Events::SENT)
-            {
-                currentProc=traceLine.at(1).toInt();
-                sents[currentProc]=traceLine.at(0).toInt();
-                for (int i=sends[currentProc];i<=sents[currentProc];i++) procs[currentProc].sending[i]=1;
-            }
-            else if(traceLine.at(7).toInt()==BNBScheduler::Events::COMMAND_ARRIVED ||
-                    traceLine.at(7).toInt()==BNBScheduler::Events::DATA_ARRIVED)
-            {
-                currentProc=traceLine.at(1).toInt();
-                arrives[currentProc]=traceLine.at(0).toInt();
-                for (int i=recvs[currentProc]+1;i<arrives[currentProc];i++) procs[currentProc].receiving[i]=1;
-            }
-        }
+
     }
     if(!procNumSet)
     {
@@ -348,8 +349,9 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
      * preparing exchange tab
      */
     ExchangeView *exchangeView = new ExchangeView(procNum,RECT_SIZE);
+    senders=exchangeView->senders;
+    receivers=exchangeView->receivers;
     ui->exchangeLayout->addWidget(exchangeView);
-
     /*
      * preparing control widget
      */
