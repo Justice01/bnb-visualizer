@@ -10,8 +10,8 @@ class ExchangeView : public QGraphicsView
 {
 public:
     ExchangeView(int procNum, int procSize);
-    QList<QGraphicsRectItem*> *senders;
-    QList<QGraphicsRectItem*> *receivers;
+    QVector<QGraphicsRectItem*> *senders;
+    QVector<QGraphicsRectItem*> *receivers;
     QGraphicsScene * scene;
     virtual ~ExchangeView();
 protected:

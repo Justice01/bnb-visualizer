@@ -16,6 +16,7 @@
 #include "exchangeview.h"
 #include "gridprocview.h"
 #include "bnbscheduler.hpp"
+#include "exchanger.h"
 
 #define CURVE_MIN_LENGTH 100
 #define PLOT_MAX_SIZE 250
@@ -53,8 +54,9 @@ private:
     QList<QwtPlotCurve*> *sendingCurves;
     QList<QwtPlotCurve*> *receivingCurves;
     QList<QGraphicsRectItem*> *rects;
-    QList<QGraphicsRectItem*> *senders;
-    QList<QGraphicsRectItem*> *receivers;
+    QVector<QGraphicsRectItem*> *senders;
+    QVector<QGraphicsRectItem*> *receivers;
+    QList<exchanger*> *exchanges;
     int timerID;
     int procNum;
     int maxTime;

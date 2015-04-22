@@ -3,30 +3,28 @@
 ExchangeView::ExchangeView(int procNum, int procSize):QGraphicsView()
 {
     setDragMode(ScrollHandDrag);
-    senders= new QList<QGraphicsRectItem*>();
-    receivers= new QList<QGraphicsRectItem*>();
-    QGraphicsRectItem *sndr;
-    QGraphicsRectItem *rcvr;
+    senders= new QVector<QGraphicsRectItem*>(procNum);
+    receivers= new QVector<QGraphicsRectItem*>(procNum);
+    //QGraphicsRectItem **sndr=senders->data();
+    //QGraphicsRectItem **rcvr=receivers->data();
     scene= new QGraphicsScene();
     this->setScene(scene);
     for(int i=0;i<procNum;i++)
     {
-        sndr = new QGraphicsRectItem();
-        sndr= new QGraphicsRectItem();
-        sndr->setPen(QPen(Qt::black));
-        sndr->setBrush(QBrush(Qt::gray));
-        sndr->setRect((i+1)*(procSize+2),0,procSize,procSize);
-        sndr->setToolTip(QString::number(i));
-        senders->append(sndr);
-        scene->addItem(sndr);
-        rcvr = new QGraphicsRectItem();
-        rcvr= new QGraphicsRectItem();
-        rcvr->setPen(QPen(Qt::black));
-        rcvr->setBrush(QBrush(Qt::gray));
-        rcvr->setRect(0,-(i+1)*(procSize+2),procSize,procSize);
-        rcvr->setToolTip(QString::number(i));
-        receivers->append(rcvr);
-        scene->addItem(rcvr);
+        (*senders)[i]= new QGraphicsRectItem();
+        (*senders)[i]->setPen(QPen(Qt::black));
+        (*senders)[i]->setBrush(QBrush(Qt::gray));
+        (*senders)[i]->setRect((i+1)*(procSize+2),0,procSize,procSize);
+        (*senders)[i]->setToolTip(QString::number(i));
+        //senders->append(sndr);
+        scene->addItem((*senders)[i]);
+        (*receivers)[i] = new QGraphicsRectItem();
+        (*receivers)[i]->setPen(QPen(Qt::black));
+        (*receivers)[i]->setBrush(QBrush(Qt::gray));
+        (*receivers)[i]->setRect(0,-(i+1)*(procSize+2),procSize,procSize);
+        (*receivers)[i]->setToolTip(QString::number(i));
+        //receivers->append(rcvr);
+        scene->addItem((*receivers)[i]);
     }
 }
 

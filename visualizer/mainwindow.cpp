@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sendingCurves=NULL;
     receivingCurves=NULL;
     rects=NULL;
+    exchanges=NULL;
     maxTime=0;
     procNum=0;
     connect(ui->actionLoad_trace,SIGNAL(triggered()),this,SLOT(loadTrace()));
@@ -187,14 +188,16 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
      * parcing trace
      */
     QStringList traceLine;
+    QStringListIterator traceIt(trace);
     bool procNumSet=true;
     if (procNum==0)procNumSet=false;
     //if second parametr 0 determine procNum from trace
     if (!procNumSet)
     {
-        for(int i=0;i<trace.length();i++)
+        //for(int i=0;i<trace.length();i++)
+        while(traceIt.hasNext())
         {
-            traceLine=trace[i].split(' ');
+            traceLine=traceIt.next().split(' ');
             if(traceLine.length()>2)
             {
                 if(traceLine.at(1).toInt()>=procNum && traceLine.at(2).toInt()==6) procNum=traceLine.at(1).toInt()+1;
@@ -214,7 +217,14 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     int sents[procNum];
     int recvs[procNum];
     int arrives[procNum];
-
+    if(exchanges!=NULL)
+    {
+        QListIterator<exchanger*>it(*exchanges);
+        while(it.hasNext()) delete it.next();
+        delete exchanges;
+        exchanges=NULL;
+    }
+    exchanges = new QList<exchanger*>();
     for (int i=0; i<procNum;i++)
     {
         solves[i]=0;
@@ -236,10 +246,12 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
             procs[i].sending[j]=0;
         }
     }
+    traceIt=QStringListIterator(trace);
     //reading trace
-    for (int j=0; j<trace.length();j++)
+    //for (int j=0; j<trace.length();j++)
+    while(traceIt.hasNext())
     {
-        traceLine = trace[j].split(' ');
+        traceLine = traceIt.next().split(' ');
         //reading events
         if(traceLine.length()>7)
         {
@@ -271,7 +283,6 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
                 if(!procNumSet && traceLine.at(0).toInt()==0 && traceLine.at(1).toInt()==0) steps=traceLine.at(3).toInt();
                 currentProc=traceLine.at(1).toInt();
                 solves[currentProc]=traceLine.at(0).toInt();
-                //for (int i=dones[currentProc];i<solves[currentProc];i++) procs[currentProc].activity[i]=0;
             }
             else if(traceLine.at(2).toInt()==BNBScheduler::Actions::SEND_COMMAND ||
                     traceLine.at(2).toInt()==BNBScheduler::Actions::SEND_RECORDS ||
@@ -280,13 +291,11 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
             {
                 currentProc=traceLine.at(1).toInt();
                 sends[currentProc]=traceLine.at(0).toInt();
-                //for (int i=sents[currentProc];i<sends[currentProc];i++) procs[currentProc].sending[i]=0;
             }
             else if(traceLine.at(2).toInt()==BNBScheduler::Actions::RECV)
             {
                 currentProc=traceLine.at(1).toInt();
                 recvs[currentProc]=traceLine.at(0).toInt();
-                //for (int i=arrives[currentProc];i<recvs[currentProc];i++) procs[currentProc].receiving[i]=0;
             }
         }
 
@@ -352,6 +361,7 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     senders=exchangeView->senders;
     receivers=exchangeView->receivers;
     ui->exchangeLayout->addWidget(exchangeView);
+
     /*
      * preparing control widget
      */
