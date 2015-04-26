@@ -1,6 +1,6 @@
-#include "gridprocview.h"
+#include "tableprocview.h"
 
-GridProcView::GridProcView(int procNum, int procSize):QGraphicsView()
+TableProcView::TableProcView(int procNum, int procSize):QGraphicsView()
 {
     setDragMode(ScrollHandDrag);
     rects= new QList<QGraphicsRectItem*>();
@@ -21,7 +21,7 @@ GridProcView::GridProcView(int procNum, int procSize):QGraphicsView()
     }
 }
 
-void GridProcView::wheelEvent(QWheelEvent *event)
+void TableProcView::wheelEvent(QWheelEvent *event)
 {
     double numDegrees= event->delta()/8.0;
     double numSteps=numDegrees/15.0;
@@ -29,7 +29,7 @@ void GridProcView::wheelEvent(QWheelEvent *event)
     scale(factor,factor);
 }
 
-GridProcView::~GridProcView()
+TableProcView::~TableProcView()
 {
     for (int i=0;i<rects->count();i++)
     {

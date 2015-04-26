@@ -14,9 +14,12 @@
 #include <qgraphicsitem.h>
 #include <qfiledialog.h>
 #include "exchangeview.h"
-#include "gridprocview.h"
+#include "tableprocview.h"
 #include "bnbscheduler.hpp"
 #include "exchanger.h"
+#include <qjsonobject.h>
+#include <qjsondocument.h>
+#include <qjsonvalue.h>
 
 #define CURVE_MIN_LENGTH 100
 #define PLOT_MAX_SIZE 250
@@ -61,9 +64,6 @@ private:
     int procNum;
     int maxTime;
     QVector<double> time;
-    /*QVector<double> activity;
-    QVector<double> sending;
-    QVector<double> receiving;*/
     processor subproc;
     void prepareVisualization(QStringList &trace, int procNum=0);
     void updatePlots(int value);

@@ -1,20 +1,20 @@
-#ifndef GRIDPROCVIEW_H
-#define GRIDPROCVIEW_H
+#ifndef TABLEPROCVIEW_H
+#define TABLEPROCVIEW_H
 #include <qgraphicsview.h>
 #include <qgraphicsscene.h>
 #include <qgraphicsitem.h>
 #include <cmath>
 #include <qevent.h>
 
-class GridProcView : public QGraphicsView
+class TableProcView : public QGraphicsView
 {
 public:
-    GridProcView(int procNum, int procSize);
+    TableProcView(int procNum, int procSize);
     QList<QGraphicsRectItem*> *rects;
     QGraphicsScene * scene;
-    virtual ~GridProcView();
+    virtual ~TableProcView();
 protected:
     void wheelEvent(QWheelEvent *event);
 };
 
-#endif // GRIDPROCVIEW_H
+#endif // TABLEPROCVIEW_H

@@ -10,27 +10,25 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = BnBVisualizer
 TEMPLATE = app
-
+RESOURCES = \
+    myres.qrc
 SOURCES += main.cpp\
         mainwindow.cpp \
     plotlayout.cpp \
     exchangeview.cpp \
-    gridprocview.cpp \
     exchanger.cpp \
-    settingswindow.cpp
+    tableprocview.cpp
 
 HEADERS  += mainwindow.h \
     plotlayout.h \
     processor.h \
     exchangeview.h \
-    gridprocview.h \
     bnbscheduler.hpp \
     solverinfo.hpp \
     exchanger.h \
-    settingswindow.h
+    tableprocview.h
 
-FORMS    += mainwindow.ui \
-    settingswindow.ui
+FORMS    += mainwindow.ui
 
 unix:!macx: LIBS += -L$$OUT_PWD/qwt/lib/ -lqwt
 QMAKE_LFLAGS+= '-Wl,-rpath,$$OUT_PWD/qwt/lib' '-Wl,--rpath-link,$$OUT_PWD/qwt/lib'

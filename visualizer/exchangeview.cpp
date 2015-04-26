@@ -1,5 +1,4 @@
 #include "exchangeview.h"
-
 ExchangeView::ExchangeView(int procNum, int procSize):QGraphicsView()
 {
     setDragMode(ScrollHandDrag);

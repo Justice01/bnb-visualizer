@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    this->setGeometry((QApplication::desktop()->rect().width() - this->rect().width())/2,(QApplication::desktop()->rect().height() - this->rect().height())/2,this->rect().width(),this->rect().height());
     ui->setupUi(this);
     plots=NULL;
     activityCurves=NULL;
@@ -16,6 +17,14 @@ MainWindow::MainWindow(QWidget *parent) :
     maxTime=0;
     procNum=0;
     connect(ui->actionLoad_trace,SIGNAL(triggered()),this,SLOT(loadTrace()));
+    connect(ui->horizontalSlider,SIGNAL(valueChanged(int)),ui->timeLabel,SLOT(setNum(int)));
+    /*QFile f("settings.json");
+    if(f.open(QIODevice::ReadWrite))
+    {
+        //QJsonDocument sett=QJsonDocument::fromJson(f.readAll());
+        QJsonObject obj=QJsonDocument::fromJson(f.readAll()).object();
+        ui->solveEdit->setText(obj.value("solve").toString());
+    }*/
 }
 
 MainWindow::~MainWindow()
@@ -120,7 +129,7 @@ void MainWindow::updatePlots(int value)
             plots->at(j)->replot();
         }
     }
-    if(ui->tabWidget->currentWidget()==ui->GridProcTab)
+    if(ui->tabWidget->currentWidget()==ui->TableProcTab)
     {
         for (int i=0;i<rects->length();i++)
         {
@@ -144,7 +153,31 @@ void MainWindow::updatePlots(int value)
     }
     if(ui->tabWidget->currentWidget()==ui->ExchangeTab)
     {
-        //future code
+        for (int i=0;i<rects->length();i++)
+        {
+            if(procs[i].activity[value]==1)
+            {
+                senders->at(i)->setBrush(Qt::blue);
+                receivers->at(i)->setBrush(Qt::blue);
+            }
+            else if(procs[i].sending[value]==1)
+            {
+                senders->at(i)->setBrush(Qt::green);
+                receivers->at(i)->setBrush(Qt::green);
+            }
+            else if(procs[i].receiving[value]==1)
+            {
+                senders->at(i)->setBrush(Qt::red);
+                receivers->at(i)->setBrush(Qt::red);
+            }
+            else
+            {
+                senders->at(i)->setBrush(Qt::gray);
+                receivers->at(i)->setBrush(Qt::gray);
+            }
+        }
+        QListIterator<exchanger*>it(*exchanges);
+        while(it.hasNext()) it.next()->drawLines(value,senders,receivers);
     }
 }
 
@@ -162,7 +195,7 @@ void MainWindow::loadTrace()
     QString fileName = QFileDialog::getOpenFileName(this,
                                 QString::fromUtf8("Open file"),
                                 QDir::currentPath(),
-                                tr("Text (*.txt)"));
+                                tr("Trace (*.trc)"));
     if(fileName.isEmpty()) return;
     QFile file(fileName);
     if(!file.open(QIODevice::ReadOnly))
@@ -194,14 +227,13 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     //if second parametr 0 determine procNum from trace
     if (!procNumSet)
     {
-        //for(int i=0;i<trace.length();i++)
         while(traceIt.hasNext())
         {
             traceLine=traceIt.next().split(' ');
             if(traceLine.length()>2)
             {
                 if(traceLine.at(1).toInt()>=procNum && traceLine.at(2).toInt()==6) procNum=traceLine.at(1).toInt()+1;
-                else if(traceLine.at(1).toInt()<procNum || traceLine.at(2).toInt()!=6) break;
+                else if(traceLine.at(0).toInt()>0) break;
             }
         }
     }
@@ -248,7 +280,6 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     }
     traceIt=QStringListIterator(trace);
     //reading trace
-    //for (int j=0; j<trace.length();j++)
     while(traceIt.hasNext())
     {
         traceLine = traceIt.next().split(' ');
@@ -273,6 +304,16 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
                 currentProc=traceLine.at(1).toInt();
                 arrives[currentProc]=traceLine.at(0).toInt();
                 for (int i=recvs[currentProc];i<arrives[currentProc];i++) procs[currentProc].receiving[i]=1;
+                QList<exchanger*>::iterator it=exchanges->end();
+                while(it!=exchanges->begin())
+                {
+                    --it;
+                    if((*it)->getTo()==currentProc && (*it)->getEnd()==0)
+                    {
+                        (*it)->setEnd(arrives[currentProc]);
+                        break;
+                    }
+                }
             }
         }
         //reading actions
@@ -291,6 +332,7 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
             {
                 currentProc=traceLine.at(1).toInt();
                 sends[currentProc]=traceLine.at(0).toInt();
+                exchanges->append(new exchanger(currentProc,traceLine.at(3).toInt(),NULL,sends[currentProc],0));
             }
             else if(traceLine.at(2).toInt()==BNBScheduler::Actions::RECV)
             {
@@ -300,11 +342,22 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
         }
 
     }
+    for (int i=0;i<procNum;i++)
+    {
+        if (solves[i]>dones[i])
+            for (int j=solves[i];j<=maxTime;j++) procs[i].activity[j]=1;
+        else if(recvs[i]>arrives[i])
+            for (int j=solves[i];j<=maxTime;j++) procs[i].receiving[j]=1;
+        else if(sends[i]>sents[i])
+            for (int j=solves[i];j<=maxTime;j++) procs[i].sending[j]=1;
+
+    }
     if(!procNumSet)
     {
         ui->StepsEdit->setText(QString::number(steps));
         ui->ProcNumEdit->setText(QString::number(procNum));
     }
+
 
     /*
      * cleaning old visualization if it exists
@@ -314,9 +367,9 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
         delete(ui->plotWidget->layout());
 
     }
-    if(ui->gridProcLayout->itemAt(0)!=NULL)
+    if(ui->tableProcLayout->itemAt(0)!=NULL)
     {
-        QWidget *w=ui->gridProcLayout->itemAt(0)->widget();
+        QWidget *w=ui->tableProcLayout->itemAt(0)->widget();
         ui->exchangeLayout->removeWidget(w);
         delete(w);
     }
@@ -348,11 +401,11 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     subproc.sending.squeeze();
     subproc.receiving.squeeze();
     /*
-     * preparing processes grid tab
+     * preparing processes table tab
      */
-    GridProcView *gridProcView = new GridProcView(procNum,RECT_SIZE);
-    rects=gridProcView->rects;
-    ui->gridProcLayout->addWidget(gridProcView);
+    TableProcView *tableProcView = new TableProcView(procNum,RECT_SIZE);
+    rects=tableProcView->rects;
+    ui->tableProcLayout->addWidget(tableProcView);
 
     /*
      * preparing exchange tab
@@ -361,6 +414,11 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     senders=exchangeView->senders;
     receivers=exchangeView->receivers;
     ui->exchangeLayout->addWidget(exchangeView);
+    if(exchanges!=NULL)
+    {
+        QListIterator<exchanger*>it(*exchanges);
+        while(it.hasNext()) it.next()->addScene(exchangeView->scene);
+    }
 
     /*
      * preparing control widget
