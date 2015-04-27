@@ -4,8 +4,6 @@ ExchangeView::ExchangeView(int procNum, int procSize):QGraphicsView()
     setDragMode(ScrollHandDrag);
     senders= new QVector<QGraphicsRectItem*>(procNum);
     receivers= new QVector<QGraphicsRectItem*>(procNum);
-    //QGraphicsRectItem **sndr=senders->data();
-    //QGraphicsRectItem **rcvr=receivers->data();
     scene= new QGraphicsScene();
     this->setScene(scene);
     for(int i=0;i<procNum;i++)

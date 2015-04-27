@@ -7,7 +7,7 @@ TableProcView::TableProcView(int procNum, int procSize):QGraphicsView()
     QGraphicsRectItem *rect;
     scene= new QGraphicsScene();
     this->setScene(scene);
-    int procLine= std::sqrt(procNum);
+    int procLine= std::sqrt((double)procNum);
     for(int i=0;i<procNum;i++)
     {
         rect = new QGraphicsRectItem();

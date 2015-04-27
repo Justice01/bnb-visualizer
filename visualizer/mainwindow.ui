@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>824</width>
-    <height>661</height>
+    <width>842</width>
+    <height>713</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -342,9 +342,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QWidget" name="widget_10" native="true">
-            <zorder>groupBox_4</zorder>
-           </widget>
+           <widget class="QWidget" name="widget_10" native="true"/>
           </item>
           <item>
            <widget class="QGroupBox" name="groupBox_4">
@@ -372,7 +370,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="lineEdit_4">
+                 <widget class="QLineEdit" name="latencyEdit">
                   <property name="minimumSize">
                    <size>
                     <width>150</width>
@@ -404,7 +402,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="lineEdit_5">
+                 <widget class="QLineEdit" name="bandwidthEdit">
                   <property name="minimumSize">
                    <size>
                     <width>150</width>
@@ -427,7 +425,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="lineEdit_6">
+                 <widget class="QLineEdit" name="maxTaskLevelEdit">
                   <property name="minimumSize">
                    <size>
                     <width>150</width>
@@ -573,7 +571,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit"/>
+              <widget class="QLineEdit" name="pathEdit"/>
              </item>
              <item>
               <widget class="QLabel" name="label_16">
@@ -659,8 +657,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>780</width>
-               <height>423</height>
+               <width>798</width>
+               <height>449</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout">
@@ -726,7 +724,7 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>10</height>
+          <height>36</height>
          </size>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -734,6 +732,12 @@
           <widget class="QSlider" name="horizontalSlider">
            <property name="enabled">
             <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>18</height>
+            </size>
            </property>
            <property name="styleSheet">
             <string notr="true"> QSlider::groove:horizontal {
@@ -939,7 +943,7 @@ QSlider::add-page:horizontal{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>824</width>
+     <width>842</width>
      <height>27</height>
     </rect>
    </property>

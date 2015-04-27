@@ -18,13 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     procNum=0;
     connect(ui->actionLoad_trace,SIGNAL(triggered()),this,SLOT(loadTrace()));
     connect(ui->horizontalSlider,SIGNAL(valueChanged(int)),ui->timeLabel,SLOT(setNum(int)));
-    /*QFile f("settings.json");
-    if(f.open(QIODevice::ReadWrite))
-    {
-        //QJsonDocument sett=QJsonDocument::fromJson(f.readAll());
-        QJsonObject obj=QJsonDocument::fromJson(f.readAll()).object();
-        ui->solveEdit->setText(obj.value("solve").toString());
-    }*/
+    jsonLoad("settings.json");
 }
 
 MainWindow::~MainWindow()
@@ -34,7 +28,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_ComputeButton_clicked()
 {
-
+    jsonSave("settings.json");
     //preparing input data
     if(ui->ProcNumEdit->text().toInt()==0)
     {
@@ -45,6 +39,32 @@ void MainWindow::on_ComputeButton_clicked()
     {
         QMessageBox::information(this,"","Wrong step!");
         return;
+    }
+    if(ui->storeEdit->text().isEmpty()||
+            ui->solveEdit->text().isEmpty()||
+            ui->overheadEdit->text().isEmpty()||
+            ui->loadEdit->text().isEmpty()||
+            ui->subproblemEdit->text().isEmpty()||
+            ui->recordEdit->text().isEmpty()||
+            ui->commandEdit->text().isEmpty()||
+            ui->bandwidthEdit->text().isEmpty()||
+            ui->latencyEdit->text().isEmpty()||
+            ui->maxTaskLevelEdit->text().isEmpty())
+    {
+        QMessageBox::information(this,"","Wrong settings!");
+        return;
+    }
+    if(ui->pathEdit->text().isEmpty())
+    {
+        QString s;
+        QDateTime d= QDateTime::currentDateTime();
+        s.append(QString::number(d.date().year()));
+        s.append(QString::number(d.date().month()));
+        s.append(QString::number(d.date().day()));
+        s.append(QString::number(d.time().hour()));
+        s.append(QString::number(d.time().minute()));
+        s.append(QString::number(d.time().second()));
+        ui->pathEdit->setText(s);
     }
     //reading bnb-simulators data (trace)
     QByteArray ar;
@@ -64,6 +84,19 @@ void MainWindow::on_ComputeButton_clicked()
     p->waitForFinished();
     QStringList trace=QString::fromLocal8Bit(ar).split('\n');
     if(trace.last().isEmpty())trace.removeLast();
+    QDir dir;
+    if(!dir.exists("traces")){dir.mkdir("traces");}
+    QFile f("traces/"+ui->pathEdit->text()+".trc");
+    if(f.open(QFile::ReadWrite|QFile::Truncate))
+    {
+        f.write(ar);
+        f.close();
+    }
+    else
+    {
+        QMessageBox::information(this,"","Error while saving trace!");
+        return;
+    }
 
     prepareVisualization(trace,ui->ProcNumEdit->text().toInt());
 }
@@ -241,7 +274,7 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     procs.resize(procNum);
     procs.squeeze();
     int currentProc=0;
-    int steps=0;
+    //int steps=0;
     maxTime = trace.last().split(' ').first().toInt();
     int solves[procNum];
     int dones[procNum];
@@ -321,7 +354,7 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
         {
             if(traceLine.at(2).toInt()==BNBScheduler::Actions::SOLVE)
             {
-                if(!procNumSet && traceLine.at(0).toInt()==0 && traceLine.at(1).toInt()==0) steps=traceLine.at(3).toInt();
+                //if(!procNumSet && traceLine.at(0).toInt()==0 && traceLine.at(1).toInt()==0) steps=traceLine.at(3).toInt();
                 currentProc=traceLine.at(1).toInt();
                 solves[currentProc]=traceLine.at(0).toInt();
             }
@@ -352,11 +385,11 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
             for (int j=solves[i];j<=maxTime;j++) procs[i].sending[j]=1;
 
     }
-    if(!procNumSet)
+    /*if(!procNumSet)
     {
         ui->StepsEdit->setText(QString::number(steps));
         ui->ProcNumEdit->setText(QString::number(procNum));
-    }
+    }*/
 
 
     /*
@@ -435,4 +468,75 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     ui->DTSlider->setEnabled(true);
     ui->DTSlider->setValue(1);
 
+}
+void MainWindow::jsonLoad(QString fileName)
+{
+    QFile f(fileName);
+    if(f.open(QIODevice::ReadOnly))
+    {
+        QJsonObject obj=QJsonDocument::fromJson(((QString)f.readAll()).toUtf8()).object();
+        ui->solveEdit->setText(QString::number(((obj.value("timer").toObject()).value("time cost").toObject())["solve"].toDouble()));
+        ui->storeEdit->setText(QString::number(((obj.value("timer").toObject()).value("time cost").toObject())["store"].toDouble()));
+        ui->loadEdit->setText(QString::number(((obj.value("timer").toObject()).value("time cost").toObject())["load"].toDouble()));
+        ui->overheadEdit->setText(QString::number(((obj.value("timer").toObject()).value("time cost").toObject())["overhead"].toDouble()));
+        ui->commandEdit->setText(QString::number(((obj.value("serializer").toObject()).value("parcel size").toObject())["command"].toDouble()));
+        ui->recordEdit->setText(QString::number(((obj.value("serializer").toObject()).value("parcel size").toObject())["record"].toDouble()));
+        ui->subproblemEdit->setText(QString::number(((obj.value("serializer").toObject()).value("parcel size").toObject())["subproblem"].toDouble()));
+        ui->latencyEdit->setText(QString::number((obj.value("communicator").toObject())["latency"].toDouble()));
+        ui->bandwidthEdit->setText(QString::number((obj.value("communicator").toObject())["bandwidth"].toDouble()));
+        ui->maxTaskLevelEdit->setText(QString::number((obj.value("resolver").toObject())["maximal task level"].toDouble()));
+    }
+    else QMessageBox::information(this,"","settings file was not load!");
+    f.close();
+}
+
+void MainWindow::jsonSave(QString fileName)
+{
+    QFile f(fileName);
+    if(f.open(QIODevice::ReadWrite|QIODevice::Truncate))
+    {
+        QJsonObject obj;
+
+        QJsonObject timer;
+        QJsonObject time_cost;
+
+        QJsonObject serializer;
+        QJsonObject parcel_size;
+
+        QJsonObject communicator;
+
+        QJsonObject resolver;
+
+        time_cost["solve"]=ui->solveEdit->text().toInt();
+        time_cost["store"]=ui->storeEdit->text().toInt();
+        time_cost["load"]=ui->loadEdit->text().toInt();
+        time_cost["overhead"]=ui->overheadEdit->text().toInt();
+
+        timer["time cost"]=time_cost;
+
+        parcel_size["command"]=ui->commandEdit->text().toInt();
+        parcel_size["record"]=ui->recordEdit->text().toInt();
+        parcel_size["subproblem"]=ui->subproblemEdit->text().toInt();
+
+        serializer["parcel size"]=parcel_size;
+
+        communicator["latency"]=ui->latencyEdit->text().toInt();
+        communicator["bandwidth"]=ui->bandwidthEdit->text().toInt();
+
+        resolver["maximal task level"]=ui->maxTaskLevelEdit->text().toInt();
+
+        obj["timer"]=timer;
+        obj["serializer"]=serializer;
+        obj["communicator"]=communicator;
+        obj["resolver"]=resolver;
+        QJsonDocument doc(obj);
+        f.write(doc.toJson());
+    }
+    else QMessageBox::information(this,"","settings file was not save!");
+    f.close();
+}
+void MainWindow::closeEvent(QCloseEvent * event)
+{
+    jsonSave("settings.json");
+    event->accept();
 }

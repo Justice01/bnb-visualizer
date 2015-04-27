@@ -20,6 +20,7 @@
 #include <qjsonobject.h>
 #include <qjsondocument.h>
 #include <qjsonvalue.h>
+#include <qdatetime.h>
 
 #define CURVE_MIN_LENGTH 100
 #define PLOT_MAX_SIZE 250
@@ -68,8 +69,11 @@ private:
     void prepareVisualization(QStringList &trace, int procNum=0);
     void updatePlots(int value);
     void parseTrace(QStringList &trace, int procNum=0);
+    void jsonLoad(QString fileName);
+    void jsonSave(QString fileName);
 protected:
     virtual void timerEvent(QTimerEvent *);
+    virtual void closeEvent(QCloseEvent * event);
 };
 
 #endif // MAINWINDOW_H
