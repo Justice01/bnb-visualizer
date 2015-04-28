@@ -21,6 +21,7 @@
 #include <qjsondocument.h>
 #include <qjsonvalue.h>
 #include <qdatetime.h>
+#include "helpdialog.h"
 
 #define CURVE_MIN_LENGTH 100
 #define PLOT_MAX_SIZE 250
@@ -50,6 +51,7 @@ private slots:
     void on_XScaleSlider_valueChanged(int value);
 public slots:
     void loadTrace();
+    void viewHelp();
 private:
     Ui::MainWindow *ui;
     QVector<processor> procs;

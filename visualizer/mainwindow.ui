@@ -953,7 +953,14 @@ QSlider::add-page:horizontal{
     </property>
     <addaction name="actionLoad_trace"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionView_Help"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLoad_trace">
@@ -965,6 +972,11 @@ QSlider::add-page:horizontal{
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionView_Help">
+   <property name="text">
+    <string>View Help</string>
    </property>
   </action>
  </widget>

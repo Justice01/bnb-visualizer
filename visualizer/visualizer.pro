@@ -17,7 +17,9 @@ SOURCES += main.cpp\
     plotlayout.cpp \
     exchangeview.cpp \
     exchanger.cpp \
-    tableprocview.cpp
+    tableprocview.cpp \
+    helpdialog.cpp \
+    paintwidget.cpp
 
 HEADERS  += mainwindow.h \
     plotlayout.h \
@@ -26,9 +28,12 @@ HEADERS  += mainwindow.h \
     bnbscheduler.hpp \
     solverinfo.hpp \
     exchanger.h \
-    tableprocview.h
+    tableprocview.h \
+    helpdialog.h \
+    paintwidget.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    helpdialog.ui
 
 unix:!macx: LIBS += -L$$OUT_PWD/qwt/lib/ -lqwt
 QMAKE_LFLAGS+= '-Wl,-rpath,$$OUT_PWD/qwt/lib' '-Wl,--rpath-link,$$OUT_PWD/qwt/lib'

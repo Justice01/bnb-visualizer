@@ -6,8 +6,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    this->setGeometry((QApplication::desktop()->rect().width() - this->rect().width())/2,(QApplication::desktop()->rect().height() - this->rect().height())/2,this->rect().width(),this->rect().height());
     ui->setupUi(this);
+    this->setGeometry((QApplication::desktop()->rect().width() - this->rect().width())/2,(QApplication::desktop()->rect().height() - this->rect().height())/2,this->rect().width(),this->rect().height());
     plots=NULL;
     activityCurves=NULL;
     sendingCurves=NULL;
@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     maxTime=0;
     procNum=0;
     connect(ui->actionLoad_trace,SIGNAL(triggered()),this,SLOT(loadTrace()));
+    connect(ui->actionView_Help,SIGNAL(triggered()),this,SLOT(viewHelp()));
     connect(ui->horizontalSlider,SIGNAL(valueChanged(int)),ui->timeLabel,SLOT(setNum(int)));
     jsonLoad("settings.json");
 }
@@ -57,13 +58,19 @@ void MainWindow::on_ComputeButton_clicked()
     if(ui->pathEdit->text().isEmpty())
     {
         QString s;
-        QDateTime d= QDateTime::currentDateTime();
-        s.append(QString::number(d.date().year()));
-        s.append(QString::number(d.date().month()));
-        s.append(QString::number(d.date().day()));
-        s.append(QString::number(d.time().hour()));
-        s.append(QString::number(d.time().minute()));
-        s.append(QString::number(d.time().second()));
+        QDateTime d = QDateTime::currentDateTime();
+        int dateTimeItem=d.date().year();
+        s.append(QString::number(dateTimeItem));
+        dateTimeItem=d.date().month();
+        s.append(dateTimeItem>10?QString::number(dateTimeItem):("0"+QString::number(dateTimeItem)));
+        dateTimeItem=d.date().day();
+        s.append(dateTimeItem>10?QString::number(dateTimeItem):("0"+QString::number(dateTimeItem)));
+        dateTimeItem=d.time().hour();
+        s.append(dateTimeItem>10?QString::number(dateTimeItem):("0"+QString::number(dateTimeItem)));
+        dateTimeItem=d.time().minute();
+        s.append(dateTimeItem>10?QString::number(dateTimeItem):("0"+QString::number(dateTimeItem)));
+        dateTimeItem=d.time().second();
+        s.append(dateTimeItem>10?QString::number(dateTimeItem):("0"+QString::number(dateTimeItem)));
         ui->pathEdit->setText(s);
     }
     //reading bnb-simulators data (trace)
@@ -225,9 +232,11 @@ void MainWindow::on_XScaleSlider_valueChanged(int value)
 
 void MainWindow::loadTrace()
 {
+    QDir dir;
+    if(!dir.exists("traces")){dir.mkdir("traces");}
     QString fileName = QFileDialog::getOpenFileName(this,
                                 QString::fromUtf8("Open file"),
-                                QDir::currentPath(),
+                                QDir::currentPath()+"/traces",
                                 tr("Trace (*.trc)"));
     if(fileName.isEmpty()) return;
     QFile file(fileName);
@@ -539,4 +548,13 @@ void MainWindow::closeEvent(QCloseEvent * event)
 {
     jsonSave("settings.json");
     event->accept();
+}
+
+void MainWindow::viewHelp()
+{
+    if(ui->PauseButton->isEnabled())ui->PauseButton->click();
+    HelpDialog dialog;
+    dialog.exec();
+    if(ui->PlayButton->isEnabled())ui->PlayButton->click();
+
 }
