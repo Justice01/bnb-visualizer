@@ -7,8 +7,8 @@ PaintWidget::PaintWidget(QWidget *parent) : QWidget(parent)
 void PaintWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    p.setPen(*_pen);
-    p.setBrush(*_brush);
+    //p.setPen(*_pen);
+    //p.setBrush(*_brush);
     p.drawLine(this->rect().x(),this->rect().y(),this->rect().x()+this->rect().width(),this->rect().y()+this->rect().height());
     switch(_type)
     {
