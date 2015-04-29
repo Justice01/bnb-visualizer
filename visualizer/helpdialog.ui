@@ -28,20 +28,116 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTabWidget" name="tabWidget">
-     <widget class="QWidget" name="tab">
+     <property name="currentIndex">
+      <number>2</number>
+     </property>
+     <widget class="QWidget" name="plotTab">
       <attribute name="title">
-       <string>Tab 1</string>
+       <string>Plot visualization</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_3"/>
+        <layout class="QHBoxLayout" name="solvePlotLayout"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="sendPlotLayout"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="recvPlotLayout"/>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="tableTab">
       <attribute name="title">
-       <string>Tab 2</string>
+       <string>Table visualization</string>
       </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QHBoxLayout" name="solveTableLayout"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="sendTableLayout"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="recvTableLayout"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="noneTableLayout"/>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="exchangeTab">
+      <attribute name="title">
+       <string>Exchange visualization</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <layout class="QHBoxLayout" name="mainExchangeLayout"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="solveExchangeLayout"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="sendExchangeLayout"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="recvExchangeLayout"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="noneExchangeLayout"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="solveExchangeLayout_2"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="sendExchangeLayout_2"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="recvExchangeLayout_2"/>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>218</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>

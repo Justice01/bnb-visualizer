@@ -11,9 +11,11 @@ public:
     enum  PaintType
     {
         Line,
-        Rect
+        Rect,
+        None
     };
     explicit PaintWidget(QWidget *parent = 0);
+    PaintWidget(QPen *pen, QBrush *brush, PaintType type, QWidget *parent = 0);
     void setPainterParams(QPen *pen, QBrush *brush, PaintType type);
 
     ~PaintWidget();

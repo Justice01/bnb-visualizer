@@ -553,8 +553,21 @@ void MainWindow::closeEvent(QCloseEvent * event)
 void MainWindow::viewHelp()
 {
     if(ui->PauseButton->isEnabled())ui->PauseButton->click();
-    HelpDialog dialog;
-    dialog.exec();
-    if(ui->PlayButton->isEnabled())ui->PlayButton->click();
+        HelpDialog::TabType type=HelpDialog::PLOT;
+        if(ui->tabWidget->currentWidget()==ui->PlotTab)
+        {
+            type=HelpDialog::PLOT;
+        }
+        else if(ui->tabWidget->currentWidget()==ui->TableProcTab)
+        {
+            type=HelpDialog::TABLE;
+        }
+        else if(ui->tabWidget->currentWidget()==ui->ExchangeTab)
+        {
+            type=HelpDialog::EXCHANGE;
+        }
+        HelpDialog dialog(type,this);
+        dialog.exec();
+        if(ui->PlayButton->isEnabled())ui->PlayButton->click();
 
 }

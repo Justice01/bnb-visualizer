@@ -657,8 +657,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>798</width>
-               <height>449</height>
+               <width>98</width>
+               <height>28</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout">
@@ -977,6 +977,9 @@ QSlider::add-page:horizontal{
   <action name="actionView_Help">
    <property name="text">
     <string>View Help</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
    </property>
   </action>
  </widget>
