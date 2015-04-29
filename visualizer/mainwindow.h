@@ -55,11 +55,11 @@ public slots:
 private:
     Ui::MainWindow *ui;
     QVector<processor> procs;
-    QList<QwtPlot*> *plots;
-    QList<QwtPlotCurve*> *activityCurves;
-    QList<QwtPlotCurve*> *sendingCurves;
-    QList<QwtPlotCurve*> *receivingCurves;
-    QList<QGraphicsRectItem*> *rects;
+    QVector<QwtPlot*> *plots;
+    QVector<QwtPlotCurve*> *activityCurves;
+    QVector<QwtPlotCurve*> *sendingCurves;
+    QVector<QwtPlotCurve*> *receivingCurves;
+    QVector<QGraphicsRectItem*> *rects;
     QVector<QGraphicsRectItem*> *senders;
     QVector<QGraphicsRectItem*> *receivers;
     QList<exchanger*> *exchanges;

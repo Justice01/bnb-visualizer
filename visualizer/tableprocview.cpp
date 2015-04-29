@@ -1,23 +1,20 @@
 #include "tableprocview.h"
-
 TableProcView::TableProcView(int procNum, int procSize):QGraphicsView()
 {
     setDragMode(ScrollHandDrag);
-    rects= new QList<QGraphicsRectItem*>();
-    QGraphicsRectItem *rect;
+    rects= new QVector<QGraphicsRectItem*>(procNum);
     scene= new QGraphicsScene();
     this->setScene(scene);
     int procLine= std::sqrt((double)procNum);
     for(int i=0;i<procNum;i++)
     {
-        rect = new QGraphicsRectItem();
-        rect= new QGraphicsRectItem();
-        rect->setPen(QPen(Qt::black));
-        rect->setBrush(QBrush(Qt::gray));
-        rect->setRect((i%procLine+1)*(procSize+2),(i/procLine+1)*(procSize+2), procSize, procSize);
-        rect->setToolTip(QString::number(i));
-        rects->append(rect);
-        scene->addItem(rect);
+        (*rects)[i] = new QGraphicsRectItem();
+        (*rects)[i]= new QGraphicsRectItem();
+        (*rects)[i]->setPen(QPen(Qt::black));
+        (*rects)[i]->setBrush(QBrush(Qt::gray));
+        (*rects)[i]->setRect((i%procLine+1)*(procSize+2),(i/procLine+1)*(procSize+2), procSize, procSize);
+        (*rects)[i]->setToolTip(QString::number(i));
+        scene->addItem((*rects)[i]);
     }
 }
 

@@ -232,6 +232,7 @@ void MainWindow::on_XScaleSlider_valueChanged(int value)
 
 void MainWindow::loadTrace()
 {
+    if(ui->PauseButton->isEnabled())ui->PauseButton->click();
     QDir dir;
     if(!dir.exists("traces")){dir.mkdir("traces");}
     QString fileName = QFileDialog::getOpenFileName(this,

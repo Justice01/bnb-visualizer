@@ -10,7 +10,7 @@ class TableProcView : public QGraphicsView
 {
 public:
     TableProcView(int procNum, int procSize);
-    QList<QGraphicsRectItem*> *rects;
+    QVector<QGraphicsRectItem*> *rects;
     QGraphicsScene * scene;
     virtual ~TableProcView();
 protected:

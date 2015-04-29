@@ -13,14 +13,12 @@ ExchangeView::ExchangeView(int procNum, int procSize):QGraphicsView()
         (*senders)[i]->setBrush(QBrush(Qt::gray));
         (*senders)[i]->setRect((i+1)*(procSize+2),0,procSize,procSize);
         (*senders)[i]->setToolTip(QString::number(i));
-        //senders->append(sndr);
         scene->addItem((*senders)[i]);
         (*receivers)[i] = new QGraphicsRectItem();
         (*receivers)[i]->setPen(QPen(Qt::black));
         (*receivers)[i]->setBrush(QBrush(Qt::gray));
         (*receivers)[i]->setRect(0,-(i+1)*(procSize+2),procSize,procSize);
         (*receivers)[i]->setToolTip(QString::number(i));
-        //receivers->append(rcvr);
         scene->addItem((*receivers)[i]);
     }
 }
