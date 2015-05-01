@@ -49,6 +49,8 @@ private slots:
     void on_horizontalSlider_valueChanged(int value);
 
     void on_XScaleSlider_valueChanged(int value);
+    void on_tabWidget_currentChanged(int index);
+
 public slots:
     void loadTrace();
     void viewHelp();

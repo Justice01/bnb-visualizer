@@ -36,11 +36,11 @@ void MainWindow::on_ComputeButton_clicked()
         QMessageBox::information(this,"","Wrong process number!");
         return;
     }
-    if(ui->StepsEdit->text().toInt()==0)
+    /*if(ui->InputEdit->toPlainText().toInt()==0)
     {
         QMessageBox::information(this,"","Wrong step!");
         return;
-    }
+    }*/
     if(ui->storeEdit->text().isEmpty()||
             ui->solveEdit->text().isEmpty()||
             ui->overheadEdit->text().isEmpty()||
@@ -78,7 +78,7 @@ void MainWindow::on_ComputeButton_clicked()
     QProcess *p = new QProcess();
     p->setReadChannelMode(QProcess::MergedChannels);
     p->start("./bnbtest");
-    p->write(QString(ui->ProcNumEdit->text()+" "+ui->StepsEdit->text()).toLocal8Bit());
+    p->write(QString(ui->ProcNumEdit->text()+" "+ui->InputEdit->toPlainText()).toLocal8Bit());
     p->closeWriteChannel();
     while(p->waitForStarted(-1))
     {
@@ -106,6 +106,7 @@ void MainWindow::on_ComputeButton_clicked()
     }
 
     prepareVisualization(trace,ui->ProcNumEdit->text().toInt());
+    QMessageBox::information(this,"","Done!");
 }
 
 void MainWindow::timerEvent(QTimerEvent *)
@@ -284,7 +285,6 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     procs.resize(procNum);
     procs.squeeze();
     int currentProc=0;
-    //int steps=0;
     maxTime = trace.last().split(' ').first().toInt();
     int solves[procNum];
     int dones[procNum];
@@ -364,7 +364,6 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
         {
             if(traceLine.at(2).toInt()==BNBScheduler::Actions::SOLVE)
             {
-                //if(!procNumSet && traceLine.at(0).toInt()==0 && traceLine.at(1).toInt()==0) steps=traceLine.at(3).toInt();
                 currentProc=traceLine.at(1).toInt();
                 solves[currentProc]=traceLine.at(0).toInt();
             }
@@ -395,12 +394,6 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
             for (int j=solves[i];j<=maxTime;j++) procs[i].sending[j]=1;
 
     }
-    /*if(!procNumSet)
-    {
-        ui->StepsEdit->setText(QString::number(steps));
-        ui->ProcNumEdit->setText(QString::number(procNum));
-    }*/
-
 
     /*
      * cleaning old visualization if it exists
@@ -554,21 +547,25 @@ void MainWindow::closeEvent(QCloseEvent * event)
 void MainWindow::viewHelp()
 {
     if(ui->PauseButton->isEnabled())ui->PauseButton->click();
-        HelpDialog::TabType type=HelpDialog::PLOT;
-        if(ui->tabWidget->currentWidget()==ui->PlotTab)
-        {
-            type=HelpDialog::PLOT;
-        }
-        else if(ui->tabWidget->currentWidget()==ui->TableProcTab)
-        {
-            type=HelpDialog::TABLE;
-        }
-        else if(ui->tabWidget->currentWidget()==ui->ExchangeTab)
-        {
-            type=HelpDialog::EXCHANGE;
-        }
-        HelpDialog dialog(type,this);
-        dialog.exec();
-        if(ui->PlayButton->isEnabled())ui->PlayButton->click();
+    HelpDialog::TabType type=HelpDialog::PLOT;
+    if(ui->tabWidget->currentWidget()==ui->PlotTab)
+    {
+        type=HelpDialog::PLOT;
+    }
+    else if(ui->tabWidget->currentWidget()==ui->TableProcTab)
+    {
+        type=HelpDialog::TABLE;
+    }
+    else if(ui->tabWidget->currentWidget()==ui->ExchangeTab)
+    {
+        type=HelpDialog::EXCHANGE;
+    }
+    HelpDialog dialog(type,this);
+    dialog.exec();
 
+}
+
+void MainWindow::on_tabWidget_currentChanged(int index)
+{
+    if(ui->horizontalSlider->isEnabled())ui->horizontalSlider->valueChanged(ui->horizontalSlider->value());
 }

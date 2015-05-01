@@ -28,9 +28,6 @@
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QWidget" name="widget_3" native="true"/>
-          </item>
-          <item>
            <widget class="QGroupBox" name="groupBox">
             <property name="title">
              <string>Time cost</string>
@@ -342,9 +339,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QWidget" name="widget_10" native="true"/>
-          </item>
-          <item>
            <widget class="QGroupBox" name="groupBox_4">
             <property name="title">
              <string>Comunicator and resolver</string>
@@ -462,7 +456,7 @@
           <item>
            <widget class="QGroupBox" name="groupBox_3">
             <property name="title">
-             <string>Simulator input</string>
+             <string>Simulator parameters and input</string>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_7">
              <item>
@@ -512,7 +506,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>steps:</string>
+                   <string>input:</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -520,21 +514,9 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLineEdit" name="StepsEdit">
-                  <property name="minimumSize">
-                   <size>
-                    <width>150</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>100</string>
+                 <widget class="QTextEdit" name="InputEdit">
+                  <property name="horizontalScrollBarPolicy">
+                   <enum>Qt::ScrollBarAsNeeded</enum>
                   </property>
                  </widget>
                 </item>
@@ -609,6 +591,13 @@
               </widget>
              </item>
              <item>
+              <widget class="QLabel" name="StatusLabel">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer_4">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -657,8 +646,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>98</width>
-               <height>28</height>
+               <width>798</width>
+               <height>449</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout">
