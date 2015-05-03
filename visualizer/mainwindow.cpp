@@ -405,9 +405,9 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
         if (solves[i]>dones[i])
             for (int j=solves[i];j<=maxTime;j++) procs[i].activity[j]=1;
         else if(recvs[i]>arrives[i])
-            for (int j=solves[i];j<=maxTime;j++) procs[i].receiving[j]=1;
+            for (int j=recvs[i];j<=maxTime;j++) procs[i].receiving[j]=1;
         else if(sends[i]>sents[i])
-            for (int j=solves[i];j<=maxTime;j++) procs[i].sending[j]=1;
+            for (int j=sends[i];j<=maxTime;j++) procs[i].sending[j]=1;
 
     }
 
@@ -494,6 +494,8 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     QVector<double> realPerformance(maxTime+1);
     QVector<double> parallelTime(maxTime+1);
     QVector<procresult> results(procNum);
+    bool allInReceive=true;
+    bool existsExchange=false;
     for (int i=0;i<realPerformance.size();i++)
     {
         parallelTime[i]=i;
@@ -502,15 +504,19 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
         {
             realPerformance[i]+=procs[j].activity[i];
             results[j].activity+=procs[j].activity[i];
-            results[j].receiving+=procs[j].activity[i];
-            results[j].sending+=procs[j].activity[i];
+            results[j].receiving+=procs[j].receiving[i];
+            results[j].sending+=procs[j].sending[i];
             if(i==realPerformance.size()-1)
             {
-                results[j].activity=(results[j].activity/i)*100;
-                results[j].receiving=(results[j].receiving/i)*100;
-                results[j].sending=(results[j].sending/i)*100;
+                results[j].activityPercent=(results[j].activity/i)*100;
+                if(procs[j].receiving[i]!=1)allInReceive=false;
             }
         }
+    }
+    QListIterator<exchanger*> it(*exchanges);
+    while(it.hasNext())
+    {
+        if(it.next()->getEnd()==0)existsExchange=true;
     }
 
     //updating plot
@@ -528,13 +534,27 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     double axeleration=((double)sequentalTime)/parallelTime.last();
     double efficiency=axeleration/procNum;
     //total statistics
+    if(!existsExchange && allInReceive)
+    {
+        statisticsEdit->setTextColor(QColor(Qt::red));
+        statisticsEdit->insertPlainText(QString("DEADLOCK!\n"));
+    }
     if(axeleration<1.0) statisticsEdit->setTextColor(QColor(Qt::red));
+    else statisticsEdit->setTextColor(QColor(Qt::black));
     statisticsEdit->insertPlainText(QString("Axeleration is ")+QString::number(axeleration)+"\n");
     statisticsEdit->setTextColor(QColor(Qt::black));
     statisticsEdit->insertPlainText(QString("Efficiency is ")+QString::number(efficiency)+"\n");
+    //individual processors statistics
     for(int i=0;i<procNum;i++)
     {
-
+        statisticsEdit->setTextColor(QColor(Qt::black));
+        statisticsEdit->insertPlainText(QString("\n-----Process ")+QString::number(i)+"-----\n");
+        if(results[i].activityPercent<50) statisticsEdit->setTextColor(QColor(Qt::red));
+        else statisticsEdit->setTextColor(QColor(Qt::black));
+        statisticsEdit->insertPlainText(QString("Solving time in percent is ")+QString::number(results[i].activityPercent)+"\%\n");
+        statisticsEdit->insertPlainText(QString("Solving time is ")+QString::number(results[i].activity)+"\n");
+        statisticsEdit->insertPlainText(QString("Sending time is ")+QString::number(results[i].sending)+"\n");
+        statisticsEdit->insertPlainText(QString("Receiving time is ")+QString::number(results[i].receiving)+"\n");
     }
 
 }
