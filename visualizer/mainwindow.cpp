@@ -20,6 +20,22 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionView_Help,SIGNAL(triggered()),this,SLOT(viewHelp()));
     connect(ui->horizontalSlider,SIGNAL(valueChanged(int)),ui->timeLabel,SLOT(setNum(int)));
     jsonLoad("settings.json");
+    ui->StatisticsTab->setLayout(new QVBoxLayout());
+    ui->StatisticsTab->layout()->addWidget(new QLabel("Processors usage:"));
+    statisticsPlot =  new QwtPlot();
+    statisticsPlot->setMaximumHeight(PLOT_MAX_SIZE);
+    QwtLegend *leg=new QwtLegend();
+    statisticsPlot->insertLegend(leg,QwtPlot::TopLegend);
+    ui->StatisticsTab->layout()->addWidget(statisticsPlot);
+    statisticsEdit = new QTextEdit();
+    statisticsEdit->setReadOnly(true);
+    statisticsEdit->setFont(QFont("",14,10));
+    ui->StatisticsTab->layout()->addWidget(statisticsEdit);
+    statisticsCurve= new QwtPlotCurve("Real performance");
+    statisticsCurve->setPen(Qt::blue);
+    statisticsCurve->setBrush(Qt::blue);
+    statisticsCurve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+    statisticsCurve->attach(statisticsPlot);
 }
 
 MainWindow::~MainWindow()
@@ -470,6 +486,56 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     ui->horizontalSlider->setMaximum(maxTime);
     ui->DTSlider->setEnabled(true);
     ui->DTSlider->setValue(1);
+
+    /*
+     * preparing statistics
+     */
+    //accumulate processors data
+    QVector<double> realPerformance(maxTime+1);
+    QVector<double> parallelTime(maxTime+1);
+    QVector<procresult> results(procNum);
+    for (int i=0;i<realPerformance.size();i++)
+    {
+        parallelTime[i]=i;
+        realPerformance[i]=0;
+        for(int j=0;j<procNum;j++)
+        {
+            realPerformance[i]+=procs[j].activity[i];
+            results[j].activity+=procs[j].activity[i];
+            results[j].receiving+=procs[j].activity[i];
+            results[j].sending+=procs[j].activity[i];
+            if(i==realPerformance.size()-1)
+            {
+                results[j].activity=(results[j].activity/i)*100;
+                results[j].receiving=(results[j].receiving/i)*100;
+                results[j].sending=(results[j].sending/i)*100;
+            }
+        }
+    }
+
+    //updating plot
+    statisticsPlot->setAxisScale(QwtPlot::xBottom,0,parallelTime.size(),0);
+    statisticsPlot->setAxisScale(QwtPlot::yLeft,0,procNum,0);
+    statisticsCurve->setSamples(parallelTime,realPerformance);
+    statisticsPlot->replot();
+    statisticsEdit->clear();
+    //axeleration and efficiency count
+    int sequentalTime=0;
+    for (int i=0;i<realPerformance.size();i++)
+    {
+        sequentalTime+=realPerformance[i];
+    }
+    double axeleration=((double)sequentalTime)/parallelTime.last();
+    double efficiency=axeleration/procNum;
+    //total statistics
+    if(axeleration<1.0) statisticsEdit->setTextColor(QColor(Qt::red));
+    statisticsEdit->insertPlainText(QString("Axeleration is ")+QString::number(axeleration)+"\n");
+    statisticsEdit->setTextColor(QColor(Qt::black));
+    statisticsEdit->insertPlainText(QString("Efficiency is ")+QString::number(efficiency)+"\n");
+    for(int i=0;i<procNum;i++)
+    {
+
+    }
 
 }
 void MainWindow::jsonLoad(QString fileName)

@@ -22,6 +22,9 @@
 #include <qjsonvalue.h>
 #include <qdatetime.h>
 #include "helpdialog.h"
+#include <qtextedit.h>
+#include <qwt_legend.h>
+#include "procresult.h"
 
 #define CURVE_MIN_LENGTH 100
 #define PLOT_MAX_SIZE 250
@@ -65,6 +68,9 @@ private:
     QVector<QGraphicsRectItem*> *senders;
     QVector<QGraphicsRectItem*> *receivers;
     QList<exchanger*> *exchanges;
+    QwtPlot *statisticsPlot;
+    QwtPlotCurve *statisticsCurve;
+    QTextEdit *statisticsEdit;
     int timerID;
     int procNum;
     int maxTime;

@@ -30,7 +30,8 @@ HEADERS  += mainwindow.h \
     exchanger.h \
     tableprocview.h \
     helpdialog.h \
-    paintwidget.h
+    paintwidget.h \
+    procresult.h
 
 FORMS    += mainwindow.ui \
     helpdialog.ui
