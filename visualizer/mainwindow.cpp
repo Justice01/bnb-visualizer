@@ -364,14 +364,15 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
                 arrives[currentProc]=traceLine.at(0).toInt();
                 for (int i=recvs[currentProc];i<arrives[currentProc];i++) procs[currentProc].receiving[i]=1;
                 QList<exchanger*>::iterator it=exchanges->end();
-                while(it!=exchanges->begin())
+                while(true)
                 {
                     --it;
                     if((*it)->getTo()==currentProc && (*it)->getEnd()==0)
                     {
                         (*it)->setEnd(arrives[currentProc]);
-                        break;
+                        //break;
                     }
+                    if(it==exchanges->begin()) break;
                 }
             }
         }
