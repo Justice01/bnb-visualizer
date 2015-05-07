@@ -367,10 +367,10 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
                 while(true)
                 {
                     --it;
-                    if((*it)->getTo()==currentProc && (*it)->getEnd()==0)
+                    if((*it)->getTo()==currentProc && (*it)->getFrom()==traceLine.at(8).toInt() && (*it)->getEnd()==0)
                     {
                         (*it)->setEnd(arrives[currentProc]);
-                        //break;
+                        break;
                     }
                     if(it==exchanges->begin()) break;
                 }
