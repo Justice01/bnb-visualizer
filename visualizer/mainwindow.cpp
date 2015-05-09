@@ -31,6 +31,11 @@ MainWindow::MainWindow(QWidget *parent) :
     statisticsEdit->setReadOnly(true);
     statisticsEdit->setFont(QFont("",14,10));
     ui->StatisticsTab->layout()->addWidget(statisticsEdit);
+    peakPerformanceCurve= new QwtPlotCurve("Peak performance");
+    peakPerformanceCurve->setPen(Qt::green);
+    peakPerformanceCurve->setBrush(Qt::green);
+    peakPerformanceCurve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
+    peakPerformanceCurve->attach(statisticsPlot);
     statisticsCurve= new QwtPlotCurve("Real performance");
     statisticsCurve->setPen(Qt::blue);
     statisticsCurve->setBrush(Qt::blue);
@@ -271,6 +276,7 @@ void MainWindow::loadTrace()
     }
     file.close();
     prepareVisualization(trace);
+    QMessageBox::information(this,"","Done!");
 }
 
 void MainWindow::prepareVisualization(QStringList&trace, int procNum)
@@ -493,6 +499,7 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
      */
     //accumulate processors data
     QVector<double> realPerformance(maxTime+1);
+    QVector<double> peakPerformance(maxTime+1);
     QVector<double> parallelTime(maxTime+1);
     QVector<procresult> results(procNum);
     bool allInReceive=true;
@@ -501,6 +508,7 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     {
         parallelTime[i]=i;
         realPerformance[i]=0;
+        peakPerformance[i]=procNum;
         for(int j=0;j<procNum;j++)
         {
             realPerformance[i]+=procs[j].activity[i];
@@ -523,6 +531,7 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     //updating plot
     statisticsPlot->setAxisScale(QwtPlot::xBottom,0,parallelTime.size(),0);
     statisticsPlot->setAxisScale(QwtPlot::yLeft,0,procNum,0);
+    peakPerformanceCurve->setSamples(parallelTime,peakPerformance);
     statisticsCurve->setSamples(parallelTime,realPerformance);
     statisticsPlot->replot();
     statisticsEdit->clear();

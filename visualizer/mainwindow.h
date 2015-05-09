@@ -70,6 +70,7 @@ private:
     QList<exchanger*> *exchanges;
     QwtPlot *statisticsPlot;
     QwtPlotCurve *statisticsCurve;
+    QwtPlotCurve *peakPerformanceCurve;
     QTextEdit *statisticsEdit;
     int timerID;
     int procNum;
