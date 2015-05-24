@@ -551,7 +551,7 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     }
     if(axeleration<1.0) statisticsEdit->setTextColor(QColor(Qt::red));
     else statisticsEdit->setTextColor(QColor(Qt::black));
-    statisticsEdit->insertPlainText(QString("Axeleration is ")+QString::number(axeleration)+"\n");
+    statisticsEdit->insertPlainText(QString("Speedup is ")+QString::number(axeleration)+"\n");
     statisticsEdit->setTextColor(QColor(Qt::black));
     statisticsEdit->insertPlainText(QString("Efficiency is ")+QString::number(efficiency)+"\n");
     //individual processors statistics
