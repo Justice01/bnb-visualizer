@@ -153,6 +153,16 @@ void MainWindow::on_PauseButton_clicked()
     killTimer(timerID);
 }
 
+void MainWindow::on_RewindButton_clicked()
+{
+    if(ui->horizontalSlider->value()>0) ui->horizontalSlider->setValue(ui->horizontalSlider->value()-1);
+}
+
+void MainWindow::on_ForwardButton_clicked()
+{
+    if(ui->horizontalSlider->value()<maxTime) ui->horizontalSlider->setValue(ui->horizontalSlider->value()+1);
+}
+
 void MainWindow::on_horizontalSlider_valueChanged(int value)
 {
     updatePlots(value);
@@ -429,7 +439,7 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     if(ui->tableProcLayout->itemAt(0)!=NULL)
     {
         QWidget *w=ui->tableProcLayout->itemAt(0)->widget();
-        ui->exchangeLayout->removeWidget(w);
+        ui->tableProcLayout->removeWidget(w);
         delete(w);
     }
     if(ui->exchangeLayout->itemAt(0)!=NULL)
@@ -485,6 +495,8 @@ void MainWindow::prepareVisualization(QStringList&trace, int procNum)
     ui->PlayButton->setEnabled(true);
     ui->PauseButton->setEnabled(true);
     ui->StopButton->setEnabled(true);
+    ui->RewindButton->setEnabled(true);
+    ui->ForwardButton->setEnabled(true);
     ui->XScaleSlider->setEnabled(true);
     ui->XScaleSlider->setValue(0);
     ui->XScaleSlider->setMaximum(maxTime+1-CURVE_MIN_LENGTH);

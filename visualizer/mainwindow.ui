@@ -797,6 +797,26 @@ QSlider::add-page:horizontal{
           </spacer>
          </item>
          <item>
+          <widget class="QPushButton" name="RewindButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>70</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="myres.qrc">
+             <normaloff>:/images/rewind.ico</normaloff>:/images/rewind.ico</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="PlayButton">
            <property name="enabled">
             <bool>false</bool>
@@ -880,6 +900,26 @@ QSlider::add-page:horizontal{
            <property name="icon">
             <iconset resource="myres.qrc">
              <normaloff>:/images/stop.ico</normaloff>:/images/stop.ico</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="ForwardButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>70</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="myres.qrc">
+             <normaloff>:/images/forward.ico</normaloff>:/images/forward.ico</iconset>
            </property>
           </widget>
          </item>

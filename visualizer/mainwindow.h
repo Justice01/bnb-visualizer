@@ -54,6 +54,10 @@ private slots:
     void on_XScaleSlider_valueChanged(int value);
     void on_tabWidget_currentChanged(int index);
 
+    void on_RewindButton_clicked();
+
+    void on_ForwardButton_clicked();
+
 public slots:
     void loadTrace();
     void viewHelp();

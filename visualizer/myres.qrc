@@ -3,5 +3,7 @@
         <file>pause.ico</file>
         <file>play.ico</file>
         <file>stop.ico</file>
+	<file>rewind.ico</file>
+	<file>forward.ico</file>
     </qresource>
 </RCC>
