@@ -596,6 +596,7 @@ void MainWindow::jsonLoad(QString fileName)
         ui->latencyEdit->setText(QString::number((obj.value("communicator").toObject())["latency"].toDouble()));
         ui->bandwidthEdit->setText(QString::number((obj.value("communicator").toObject())["bandwidth"].toDouble()));
         ui->maxTaskLevelEdit->setText(QString::number((obj.value("resolver").toObject())["maximal task level"].toDouble()));
+        ui->sameTreeCheckBox->setChecked((obj.value("resolver").toObject())["use the same trees"].toInt()==0?false:true);
     }
     else QMessageBox::information(this,"","settings file was not load!");
     f.close();
@@ -635,6 +636,7 @@ void MainWindow::jsonSave(QString fileName)
         communicator["bandwidth"]=ui->bandwidthEdit->text().toInt();
 
         resolver["maximal task level"]=ui->maxTaskLevelEdit->text().toInt();
+        resolver["use the same trees"]=ui->sameTreeCheckBox->isChecked()?1:0;
 
         obj["timer"]=timer;
         obj["serializer"]=serializer;
