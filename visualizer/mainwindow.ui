@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>842</width>
-    <height>732</height>
+    <height>778</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -458,6 +458,9 @@
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Expanding</enum>
+                  </property>
                   <property name="sizeHint" stdset="0">
                    <size>
                     <width>40</width>
@@ -465,6 +468,29 @@
                    </size>
                   </property>
                  </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_17">
+                  <property name="text">
+                   <string>seed:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="seedEdit">
+                  <property name="minimumSize">
+                   <size>
+                    <width>150</width>
+                    <height>27</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>150</width>
+                    <height>27</height>
+                   </size>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <widget class="QCheckBox" name="sameTreeCheckBox">
@@ -478,8 +504,9 @@
                 </item>
                </layout>
                <zorder>sameTreeCheckBox</zorder>
-               <zorder>sameTreeCheckBox</zorder>
                <zorder>horizontalSpacer_3</zorder>
+               <zorder>seedEdit</zorder>
+               <zorder>label_17</zorder>
               </widget>
              </item>
             </layout>
@@ -686,7 +713,7 @@
                <x>0</x>
                <y>0</y>
                <width>798</width>
-               <height>468</height>
+               <height>514</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout">
