@@ -25,6 +25,7 @@
 #include <qtextedit.h>
 #include <qwt_legend.h>
 #include "procresult.h"
+#include <qgroupbox.h>
 
 #define CURVE_MIN_LENGTH 100
 #define PLOT_MAX_SIZE 250
@@ -86,6 +87,11 @@ private:
     void parseTrace(QStringList &trace, int procNum=0);
     void jsonLoad(QString fileName);
     void jsonSave(QString fileName);
+
+    QVector<QGroupBox*> jsonToWidgets(QJsonObject &obj);
+    QVBoxLayout* jsonObjectToVBoxLayout(QJsonObject &obj);
+    QJsonObject widgetsToJson(QVector<QGroupBox *> gBoxes);
+    QJsonObject gBoxLayoutToJson(QGroupBox *gBox);
 protected:
     virtual void timerEvent(QTimerEvent *);
     virtual void closeEvent(QCloseEvent * event);

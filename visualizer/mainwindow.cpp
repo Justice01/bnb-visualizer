@@ -57,25 +57,7 @@ void MainWindow::on_ComputeButton_clicked()
         QMessageBox::information(this,"","Wrong process number!");
         return;
     }
-    /*if(ui->InputEdit->toPlainText().toInt()==0)
-    {
-        QMessageBox::information(this,"","Wrong step!");
-        return;
-    }*/
-    if(ui->storeEdit->text().isEmpty()||
-            ui->solveEdit->text().isEmpty()||
-            ui->overheadEdit->text().isEmpty()||
-            ui->loadEdit->text().isEmpty()||
-            ui->subproblemEdit->text().isEmpty()||
-            ui->recordEdit->text().isEmpty()||
-            ui->commandEdit->text().isEmpty()||
-            ui->bandwidthEdit->text().isEmpty()||
-            ui->latencyEdit->text().isEmpty()||
-            ui->maxTaskLevelEdit->text().isEmpty())
-    {
-        QMessageBox::information(this,"","Wrong settings!");
-        return;
-    }
+
     if(ui->pathEdit->text().isEmpty())
     {
         QString s;
@@ -586,70 +568,122 @@ void MainWindow::jsonLoad(QString fileName)
     if(f.open(QIODevice::ReadOnly))
     {
         QJsonObject obj=QJsonDocument::fromJson(((QString)f.readAll()).toUtf8()).object();
-        ui->solveEdit->setText(QString::number(((obj.value("timer").toObject()).value("time cost").toObject())["solve"].toDouble()));
-        ui->storeEdit->setText(QString::number(((obj.value("timer").toObject()).value("time cost").toObject())["store"].toDouble()));
-        ui->loadEdit->setText(QString::number(((obj.value("timer").toObject()).value("time cost").toObject())["load"].toDouble()));
-        ui->overheadEdit->setText(QString::number(((obj.value("timer").toObject()).value("time cost").toObject())["overhead"].toDouble()));
-        ui->commandEdit->setText(QString::number(((obj.value("serializer").toObject()).value("parcel size").toObject())["command"].toDouble()));
-        ui->recordEdit->setText(QString::number(((obj.value("serializer").toObject()).value("parcel size").toObject())["record"].toDouble()));
-        ui->subproblemEdit->setText(QString::number(((obj.value("serializer").toObject()).value("parcel size").toObject())["subproblem"].toDouble()));
-        ui->latencyEdit->setText(QString::number((obj.value("communicator").toObject())["latency"].toDouble()));
-        ui->bandwidthEdit->setText(QString::number((obj.value("communicator").toObject())["bandwidth"].toDouble()));
-        ui->maxTaskLevelEdit->setText(QString::number((obj.value("resolver").toObject())["maximal task level"].toDouble()));
-        ui->sameTreeCheckBox->setChecked((obj.value("resolver").toObject())["use the same trees"].toInt()==0?false:true);
-        ui->seedEdit->setText(QString::number((obj.value("resolver").toObject())["seed"].toDouble()));
+        QWidget *central = new QWidget;
+        QVBoxLayout *layout = new QVBoxLayout(central);
+        ui->computeScrollArea->setWidget(central);
+        ui->computeScrollArea->setWidgetResizable(true);
+        QVector <QGroupBox*> vtr = jsonToWidgets(obj);
+        for(int i=0; i<vtr.length(); i++)
+        {
+            layout->addWidget(vtr[i]);
+        }
     }
-    else QMessageBox::information(this,"","settings file was not load!");
+    else QMessageBox::information(this, "", "settings file was not load!");
     f.close();
+}
+
+QVector<QGroupBox*> MainWindow::jsonToWidgets(QJsonObject &obj)
+{
+    QVector<QGroupBox*> v_gbox;
+    for (QJsonObject::Iterator i = obj.begin(); i != obj.end(); i++)
+    {
+        if (i.value().isObject())
+        {
+            QGroupBox* gb = new QGroupBox();
+            gb->setTitle(i.key());
+            QJsonObject jo = i.value().toObject();
+            gb->setLayout(jsonObjectToVBoxLayout(jo));
+            v_gbox.append(gb);
+        }
+        else QMessageBox::information(this, "", "settings file is wrong");
+    }
+    return v_gbox;
+}
+
+QVBoxLayout* MainWindow::jsonObjectToVBoxLayout(QJsonObject &obj)
+{
+    if(!obj.isEmpty())
+    {
+        QVBoxLayout* lt = new QVBoxLayout();
+        for (QJsonObject::Iterator i = obj.begin(); i != obj.end(); i++)
+        {
+            if (i.value().isDouble())
+            {
+                QLabel* lbl = new QLabel();
+                lbl->setText(i.key());
+                lt->addWidget(lbl);
+                QLineEdit* edt = new QLineEdit();
+                edt->setText(QString::number(i.value().toDouble()));
+                lt->addWidget(edt);
+            }
+            else
+            {
+                QGroupBox* gb = new QGroupBox();
+                gb->setTitle(i.key());
+                QJsonObject jo = i.value().toObject();
+                gb->setLayout(jsonObjectToVBoxLayout(jo));
+                lt->addWidget(gb);
+            }
+        }
+        return lt;
+    }
+    return NULL;
 }
 
 void MainWindow::jsonSave(QString fileName)
 {
     QFile f(fileName);
+
     if(f.open(QIODevice::ReadWrite|QIODevice::Truncate))
     {
         QJsonObject obj;
+        QVector<QGroupBox*> gBoxes = ui->computeScrollArea->widget()->findChildren<QGroupBox*>(QString(), Qt::FindDirectChildrenOnly).toVector();
 
-        QJsonObject timer;
-        QJsonObject time_cost;
-
-        QJsonObject serializer;
-        QJsonObject parcel_size;
-
-        QJsonObject communicator;
-
-        QJsonObject resolver;
-
-        time_cost["solve"]=ui->solveEdit->text().toInt();
-        time_cost["store"]=ui->storeEdit->text().toInt();
-        time_cost["load"]=ui->loadEdit->text().toInt();
-        time_cost["overhead"]=ui->overheadEdit->text().toInt();
-
-        timer["time cost"]=time_cost;
-
-        parcel_size["command"]=ui->commandEdit->text().toInt();
-        parcel_size["record"]=ui->recordEdit->text().toInt();
-        parcel_size["subproblem"]=ui->subproblemEdit->text().toInt();
-
-        serializer["parcel size"]=parcel_size;
-
-        communicator["latency"]=ui->latencyEdit->text().toInt();
-        communicator["bandwidth"]=ui->bandwidthEdit->text().toInt();
-
-        resolver["maximal task level"]=ui->maxTaskLevelEdit->text().toInt();
-        resolver["use the same trees"]=ui->sameTreeCheckBox->isChecked()?1:0;
-        resolver["seed"] = ui->seedEdit->text().toInt();
-
-        obj["timer"]=timer;
-        obj["serializer"]=serializer;
-        obj["communicator"]=communicator;
-        obj["resolver"]=resolver;
+        obj = widgetsToJson(gBoxes);
         QJsonDocument doc(obj);
         f.write(doc.toJson());
     }
     else QMessageBox::information(this,"","settings file was not save!");
     f.close();
+
 }
+
+QJsonObject MainWindow::widgetsToJson(QVector<QGroupBox*> gBoxes)
+{
+    QJsonObject obj;
+    for(int i = 0; i<gBoxes.length();i++)
+    {
+        QJsonObject subobj;
+        subobj = gBoxLayoutToJson(gBoxes[i]);
+        obj[gBoxes[i]->title()] = subobj;
+    }
+    return obj;
+}
+
+QJsonObject MainWindow::gBoxLayoutToJson(QGroupBox* gBox)
+{
+    QJsonObject obj;
+    QList<QGroupBox*> gBoxesList = gBox->findChildren<QGroupBox*>(QString(), Qt::FindDirectChildrenOnly);
+    QVector<QGroupBox*> gBoxes = gBoxesList.toVector();
+    if(gBoxes.empty())
+    {
+        QVector<QLabel*> lbls = gBox->findChildren<QLabel*>(QString(), Qt::FindDirectChildrenOnly).toVector();
+        QVector<QLineEdit*> edts = gBox->findChildren<QLineEdit*>(QString(), Qt::FindDirectChildrenOnly).toVector();
+        for(int i = 0; i<lbls.length();i++)
+        {
+            obj[lbls[i]->text()] = edts[i]->text().toInt();
+        }
+    }
+    else
+    {
+        for(int i = 0; i<gBoxes.length();i++)
+        {
+            obj[gBoxes[i]->title()] = gBoxLayoutToJson(gBoxes[i]);
+        }
+    }
+    return obj;
+}
+
 void MainWindow::closeEvent(QCloseEvent * event)
 {
     jsonSave("settings.json");
