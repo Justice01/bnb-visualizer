@@ -590,7 +590,7 @@ QVector<QGroupBox*> MainWindow::jsonToWidgets(QJsonObject &obj)
         if (i.value().isObject())
         {
             QGroupBox* gb = new QGroupBox();
-            gb->setTitle(i.key());
+            gb->setTitle(i.key().replace("_"," "));
             QJsonObject jo = i.value().toObject();
             gb->setLayout(jsonObjectToVBoxLayout(jo));
             v_gbox.append(gb);
@@ -607,14 +607,35 @@ QVBoxLayout* MainWindow::jsonObjectToVBoxLayout(QJsonObject &obj)
         QVBoxLayout* lt = new QVBoxLayout();
         for (QJsonObject::Iterator i = obj.begin(); i != obj.end(); i++)
         {
-            if (i.value().isDouble())
+            if (i.value().isDouble() || i.value().isString())
             {
                 QLabel* lbl = new QLabel();
-                lbl->setText(i.key());
+                lbl->setText(i.key().replace("c_","").replace("n_","").replace("dt_","").replace("b_","").replace("_"," "));
                 lt->addWidget(lbl);
-                QLineEdit* edt = new QLineEdit();
-                edt->setText(QString::number(i.value().toDouble()));
-                lt->addWidget(edt);
+                if(i.key().startsWith("n_"))
+                {
+                    QSpinBox* sbx = new QSpinBox();
+                    sbx->setValue(i.value().toInt());
+                    lt->addWidget(sbx);
+                }
+                else if(i.key().startsWith("b_"))
+                {
+                    QCheckBox* cb = new QCheckBox();
+                    cb->setChecked(i.value().toDouble() > 0);
+                    lt->addWidget(cb);
+                }
+                else if(i.key().startsWith("c_"))
+                {
+                    QLineEdit* edt = new QLineEdit();
+                    edt->setText(i.value().toString());
+                    lt->addWidget(edt);
+                }
+                else if(i.key().startsWith("dt_"))
+                {
+                    QDateEdit* edt = new QDateEdit();
+                    edt->setDate(QDate::fromString(i.value().toString()));
+                    lt->addWidget(edt);
+                }
             }
             else
             {
@@ -655,7 +676,7 @@ QJsonObject MainWindow::widgetsToJson(QVector<QGroupBox*> gBoxes)
     {
         QJsonObject subobj;
         subobj = gBoxLayoutToJson(gBoxes[i]);
-        obj[gBoxes[i]->title()] = subobj;
+        obj[gBoxes[i]->title().replace(" ","_")] = subobj;
     }
     return obj;
 }
@@ -663,22 +684,28 @@ QJsonObject MainWindow::widgetsToJson(QVector<QGroupBox*> gBoxes)
 QJsonObject MainWindow::gBoxLayoutToJson(QGroupBox* gBox)
 {
     QJsonObject obj;
-    QList<QGroupBox*> gBoxesList = gBox->findChildren<QGroupBox*>(QString(), Qt::FindDirectChildrenOnly);
-    QVector<QGroupBox*> gBoxes = gBoxesList.toVector();
+    QVector<QGroupBox*> gBoxes = gBox->findChildren<QGroupBox*>(QString(), Qt::FindDirectChildrenOnly).toVector();
     if(gBoxes.empty())
     {
-        QVector<QLabel*> lbls = gBox->findChildren<QLabel*>(QString(), Qt::FindDirectChildrenOnly).toVector();
-        QVector<QLineEdit*> edts = gBox->findChildren<QLineEdit*>(QString(), Qt::FindDirectChildrenOnly).toVector();
-        for(int i = 0; i<lbls.length();i++)
+        QVector<QWidget*> widgts = gBox->findChildren<QWidget*>(QString(), Qt::FindDirectChildrenOnly).toVector();
+        for(int i = 0; i<widgts.length();i=i+2)
         {
-            obj[lbls[i]->text()] = edts[i]->text().toInt();
+            QLabel* lbl = qobject_cast<QLabel*>(widgts[i]);
+            if(QLineEdit* edt = qobject_cast<QLineEdit*>(widgts[i+1]))
+                obj[QString("c_").append(lbl->text().replace(" ", "_"))] = edt->text();
+            else if(QSpinBox* sbx = qobject_cast<QSpinBox*>(widgts[i+1]))
+                obj[QString("n_").append(lbl->text().replace(" ", "_"))] = sbx->text().toInt();
+            else if(QDateEdit* dedt = qobject_cast<QDateEdit*>(widgts[i+1]))
+                obj[QString("dt_").append(lbl->text().replace(" ", "_"))] = dedt->text();
+            else if(QCheckBox* cbx = qobject_cast<QCheckBox*>(widgts[i+1]))
+                obj[QString("b_").append(lbl->text().replace(" ", "_"))] = cbx->checkState() ? 1 : 0;
         }
     }
     else
     {
         for(int i = 0; i<gBoxes.length();i++)
         {
-            obj[gBoxes[i]->title()] = gBoxLayoutToJson(gBoxes[i]);
+            obj[gBoxes[i]->title().replace(" ", "_")] = gBoxLayoutToJson(gBoxes[i]);
         }
     }
     return obj;

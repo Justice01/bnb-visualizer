@@ -26,6 +26,9 @@
 #include <qwt_legend.h>
 #include "procresult.h"
 #include <qgroupbox.h>
+#include <qcheckbox.h>
+#include <qdatetimeedit.h>
+#include <qspinbox.h>
 
 #define CURVE_MIN_LENGTH 100
 #define PLOT_MAX_SIZE 250
